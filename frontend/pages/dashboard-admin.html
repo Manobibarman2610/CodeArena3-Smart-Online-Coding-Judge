@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Console — CodeArena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body{background:var(--bg-page);min-height:100vh;color:var(--text-body)}
+    .topbar{background:#fff;border-bottom:1px solid var(--border);padding:.85rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2}
+    .brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;font-weight:800;font-size:1.2rem;color:var(--text-main)}
+    .admin-tag{font-size:.7rem;color:var(--primary);background:var(--primary-light);padding:.25rem .5rem;border-radius:4px}
+    .user-chip{display:flex;align-items:center;gap:.8rem}.layout{display:flex;min-height:calc(100vh - 65px)}
+    .sidebar{width:230px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);padding:1.5rem 1rem}
+    .sidebar .nav-item{display:block;width:100%;box-sizing:border-box;border:0;background:transparent;text-align:left;cursor:pointer}
+    .admin-section[hidden]{display:none}
+    .main{flex:1;padding:2rem;overflow:auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1.5rem 0}
+    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow-sm)}
+    .metric{font-size:1.8rem;font-weight:800;color:var(--text-main)}.label{color:var(--text-muted);font-size:.85rem}
+    .toolbar{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0}.toolbar input,.toolbar select{max-width:260px}
+    .table-wrap{overflow:auto;background:#fff;border:1px solid var(--border);border-radius:var(--radius)}
+    table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;padding:.85rem 1rem;border-bottom:1px solid var(--border);font-size:.9rem}th{background:var(--bg-subtle);color:var(--text-muted);font-size:.75rem;text-transform:uppercase}
+    td select{padding:.45rem;border:1px solid var(--border);border-radius:6px;background:#fff}button{cursor:pointer}
+    .message{min-height:1.4rem;color:var(--primary);font-size:.9rem}.muted{color:var(--text-muted)}
+    @media(max-width:700px){.layout{display:block}.sidebar{width:auto;border-right:0;border-bottom:1px solid var(--border);padding:.5rem;display:flex;overflow-x:auto}.sidebar .nav-item{margin:0;width:auto;flex:0 0 auto;white-space:nowrap}.main{padding:1.25rem}.topbar{padding:.75rem 1rem}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../index.html" class="brand"><span class="logo-icon-box" style="width:30px;height:30px;font-size:.85rem">&lt;/&gt;</span>CodeArena <span class="admin-tag">ADMIN</span></a>
+    <div class="user-chip"><span id="adminName" style="font-weight:600">Administrator</span><button class="btn-danger btn-sm" onclick="CA.Auth.logout()">Logout</button></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="nav-item active" type="button" onclick="showAdminSection('overview',this)">📊 Dashboard</button>
+      <button class="nav-item" type="button" onclick="showAdminSection('users',this)">👥 User management</button>
+      <button class="nav-item" type="button" onclick="showAdminSection('permissions',this)">🔐 Roles & permissions</button>
+      <button class="nav-item" type="button" onclick="showAdminSection('monitoring',this)">🖥️ System monitoring</button>
+      <button class="nav-item" type="button" onclick="showAdminSection('settings',this)">⚙️ Platform settings</button>
+      <button class="nav-item" type="button" onclick="showAdminSection('audit',this)">📜 Activity logs</button>
+    </aside>
+    <main class="main">
+      <section id="overview" class="admin-section">
+        <h1 style="margin:0;color:var(--text-main)">Platform administration</h1>
+        <p class="muted">Manage accounts, access roles, and platform operations from one place.</p>
+        <a class="btn-primary" href="dashboard-faculty.html" style="display:inline-block;text-decoration:none">Open platform tools →</a>
+        <div class="grid">
+          <div class="card"><div class="metric" id="totalUsers">—</div><div class="label">Total users</div></div>
+          <div class="card"><div class="metric" id="activePeople">—</div><div class="label">Active students / faculty</div></div>
+          <div class="card"><div class="metric" id="activeUsersWeek">—</div><div class="label">Users active in 7 days</div></div>
+          <div class="card"><div class="metric" id="totalProblems">—</div><div class="label">Public problems</div></div>
+          <div class="card"><div class="metric" id="totalContests">—</div><div class="label">Contests</div></div>
+          <div class="card"><div class="metric" id="totalSubmissions">—</div><div class="label">Submissions</div></div>
+          <div class="card"><div class="metric" id="submissionsToday">—</div><div class="label">Submissions in last 24 hours</div></div>
+          <div class="card"><div class="metric" id="systemHealth">Checking…</div><div class="label">System health</div></div>
+        </div>
+        <div class="card"><h2 style="margin-top:0;color:var(--text-main)">Recent system activity</h2><div id="dashboardActivity" class="muted">Loading activity…</div></div>
+      </section>
+      <section id="users" class="admin-section card" style="margin-top:1.5rem" hidden>
+        <h2 style="margin:0;color:var(--text-main)">Manage accounts</h2>
+        <p class="muted">Create accounts, assign roles, reset passwords, and activate or deactivate accounts.</p>
+        <details class="card" style="margin:1rem 0;background:var(--bg-subtle)"><summary style="cursor:pointer;font-weight:700">＋ Create an account</summary>
+          <form id="createUserForm" class="toolbar" style="align-items:end">
+            <label>Name<input class="form-input" name="name" required minlength="2" maxlength="100"></label>
+            <label>Email<input class="form-input" name="email" type="email" required></label>
+            <label>Role<select class="form-select" name="role"><option value="student">Student</option><option value="faculty">Faculty</option><option value="admin">Admin</option></select></label>
+            <label>Institution<input class="form-input" name="institution"></label>
+            <label>Temporary password<input class="form-input" name="password" type="password" required minlength="8" autocomplete="new-password"></label>
+            <button class="btn-primary" type="submit">Create account</button>
+          </form>
+        </details>
+        <div class="toolbar"><input class="form-input" id="search" placeholder="Search name or email" /><select class="form-select" id="roleFilter"><option value="">All roles</option><option value="student">Students</option><option value="faculty">Faculty</option><option value="admin">Admins</option></select><button class="btn-primary" id="searchButton">Search</button></div>
+        <div id="notice" class="message" role="status"></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Institution</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="usersBody"><tr><td colspan="6" class="muted">Loading accounts…</td></tr></tbody></table></div>
+        <p id="resultCount" class="muted"></p>
+      </section>
+
+      <section id="permissions" class="admin-section card" hidden>
+        <h2 style="margin-top:0;color:var(--text-main)">Role & permission management</h2>
+        <p class="muted">Platform routes enforce role access on the backend. Assign a user’s role in User Management to update their access.</p>
+        <div class="table-wrap"><table style="min-width:520px"><thead><tr><th>Role</th><th>Access level</th><th>Permissions</th></tr></thead><tbody id="permissionsBody"><tr><td colspan="3">Loading role access…</td></tr></tbody></table></div>
+      </section>
+
+      <section id="monitoring" class="admin-section" hidden>
+        <h2 style="margin-top:0;color:var(--text-main)">System monitoring</h2>
+        <div class="grid" style="margin-top:1rem">
+          <div class="card"><div class="metric" id="monitorApi">Checking…</div><div class="label">API and database</div></div>
+          <div class="card"><div class="metric" id="monitorUptime">—</div><div class="label">Server uptime</div></div>
+          <div class="card"><div class="metric" id="monitorActive">—</div><div class="label">Active users (7 days)</div></div>
+          <div class="card"><div class="metric" id="monitorSubmissions">—</div><div class="label">Submissions (24 hours)</div></div>
+        </div>
+        <div class="card"><h3 style="margin-top:0">Recent errors and system events</h3><div id="monitorActivity" class="muted">Loading…</div></div>
+      </section>
+
+      <section id="settings" class="admin-section card" hidden>
+        <h2 style="margin-top:0;color:var(--text-main)">Platform settings</h2>
+        <p class="muted">Settings are stored by the platform. Maintenance mode is an operational flag; it does not shut down the server.</p>
+        <form id="settingsForm" style="display:grid;gap:1rem;max-width:640px">
+          <label>Website name<input class="form-input" name="platform_name" maxlength="80" required></label>
+          <label><input name="registration_open" type="checkbox"> Allow public registration</label>
+          <label><input name="maintenance_mode" type="checkbox"> Maintenance mode flag</label>
+          <label>Submission limit per IP per minute<input class="form-input" name="max_submissions_per_minute" type="number" min="1" max="300" required></label>
+          <button class="btn-primary" type="submit" style="justify-self:start">Save settings</button>
+          <div id="settingsMessage" class="message" role="status"></div>
+        </form>
+      </section>
+
+      <section id="audit" class="admin-section card" hidden>
+        <h2 style="margin-top:0;color:var(--text-main)">Audit & activity logs</h2>
+        <p class="muted">Successful sign-ins, account and role changes, settings changes, and server errors.</p>
+        <button class="btn-outline btn-sm" onclick="loadAuditLogs()">Refresh logs</button>
+        <div id="auditLogs" style="margin-top:1rem" class="muted">Loading activity…</div>
+      </section>
+    </main>
+  </div>
+  <script src="../js/api.js"></script>
+  <script>
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const currentUser = CA.getUser();
+    if (!CA.isLoggedIn() || currentUser?.role !== 'admin') window.location.href = 'login.html?tab=login';
+    else document.getElementById('adminName').textContent = currentUser.name || 'Administrator';
+
+    async function loadStats(){
+      try { const [{stats}, health] = await Promise.all([CA.Admin.getStats(), CA.Admin.getSystemHealth()]);
+        document.getElementById('totalUsers').textContent = stats.total_users ?? 0;
+        document.getElementById('activePeople').textContent = `${stats.active_students ?? 0} / ${stats.active_faculty ?? 0}`;
+        document.getElementById('activeUsersWeek').textContent = stats.active_users_7d ?? 0;
+        document.getElementById('totalProblems').textContent = stats.total_problems ?? 0;
+        document.getElementById('totalContests').textContent = stats.total_contests ?? 0;
+        document.getElementById('totalSubmissions').textContent = stats.total_submissions ?? 0;
+        document.getElementById('submissionsToday').textContent = stats.submissions_24h ?? 0;
+        document.getElementById('systemHealth').textContent = health.status === 'healthy' ? 'Healthy' : 'Issue';
+        document.getElementById('monitorApi').textContent = health.status === 'healthy' ? 'Healthy' : 'Issue';
+        document.getElementById('monitorUptime').textContent = formatUptime(health.uptime_seconds);
+        document.getElementById('monitorActive').textContent = stats.active_users_7d ?? 0;
+        document.getElementById('monitorSubmissions').textContent = stats.submissions_24h ?? 0;
+      } catch(err){ document.getElementById('notice').textContent = err.message; }
+      loadActivityInto('dashboardActivity', 8);
+    }
+
+    function formatUptime(seconds) {
+      const value = Number(seconds) || 0;
+      const days = Math.floor(value / 86400);
+      const hours = Math.floor(value % 86400 / 3600);
+      const minutes = Math.floor(value % 3600 / 60);
+      return `${days}d ${hours}h ${minutes}m`;
+    }
+
+    function showAdminSection(sectionId, button) {
+      document.querySelectorAll('.admin-section').forEach(section => { section.hidden = section.id !== sectionId; });
+      document.querySelectorAll('.sidebar .nav-item').forEach(item => item.classList.toggle('active', item === button));
+      if (sectionId === 'permissions') loadPermissions();
+      if (sectionId === 'monitoring') { loadStats(); loadActivityInto('monitorActivity', 25); }
+      if (sectionId === 'settings') loadSettings();
+      if (sectionId === 'audit') loadAuditLogs();
+    }
+    async function loadUsers(){
+      const body = document.getElementById('usersBody'); body.innerHTML = '<tr><td colspan="6" class="muted">Loading accounts…</td></tr>';
+      try {
+        const result = await CA.Admin.getUsers({search:document.getElementById('search').value.trim(),role:document.getElementById('roleFilter').value});
+        body.innerHTML = (result.users || []).map(user => `<tr><td>${esc(user.name)}</td><td>${esc(user.email)}</td><td>${esc(user.institution || '—')}</td><td><select aria-label="Role for ${esc(user.name)}" onchange="changeRole(${Number(user.id)},this.value)" ${Number(user.id) === Number(currentUser.id) ? 'disabled' : ''}><option value="student" ${user.role==='student'?'selected':''}>Student</option><option value="faculty" ${user.role==='faculty'?'selected':''}>Faculty</option><option value="admin" ${user.role==='admin'?'selected':''}>Admin</option></select></td><td>${user.is_active ? 'Active' : 'Inactive'}</td><td>${Number(user.id)===Number(currentUser.id) ? 'Current account' : `<button class="btn-outline btn-sm" onclick="setUserStatus(${Number(user.id)},${!user.is_active})">${user.is_active ? 'Deactivate' : 'Reactivate'}</button> <button class="btn-outline btn-sm" onclick="resetPassword(${Number(user.id)})">Reset password</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">No accounts found.</td></tr>';
+        document.getElementById('resultCount').textContent = `${result.total} account${result.total===1?'':'s'} found`;
+      } catch(err){ body.innerHTML = `<tr><td colspan="6">${esc(err.message)}</td></tr>`; }
+    }
+    async function changeRole(id, role){
+      const notice=document.getElementById('notice'); notice.textContent='';
+      try { await CA.Admin.changeRole(id,role); notice.textContent='User role updated.'; await loadUsers(); }
+      catch(err){ notice.textContent=err.message; await loadUsers(); }
+    }
+    async function setUserStatus(id,isActive){
+      if(!isActive && !window.confirm(`Deactivate account #${id}?`)) return;
+      const notice=document.getElementById('notice'); notice.textContent='';
+      try { await CA.Admin.setUserStatus(id,isActive); notice.textContent=`Account ${isActive?'reactivated':'deactivated'}.`; await Promise.all([loadUsers(),loadStats()]); }
+      catch(err){ notice.textContent=err.message; }
+    }
+
+    async function resetPassword(id) {
+      const password = window.prompt('Enter a temporary password (at least 8 characters):');
+      if (password === null) return;
+      const notice = document.getElementById('notice');
+      try { await CA.Admin.resetPassword(id, password); notice.textContent = 'Password reset. Share the temporary password securely with the account holder.'; }
+      catch (err) { notice.textContent = err.message; }
+    }
+
+    document.getElementById('createUserForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = Object.fromEntries(new FormData(form).entries());
+      try {
+        const result = await CA.Admin.createUser(payload);
+        document.getElementById('notice').textContent = `${result.message} Account ID: ${result.userId}`;
+        form.reset();
+        await Promise.all([loadUsers(), loadStats()]);
+      } catch (err) { document.getElementById('notice').textContent = err.message; }
+    });
+
+    async function loadPermissions() {
+      const body = document.getElementById('permissionsBody');
+      try {
+        const { permissions } = await CA.Admin.getPermissions();
+        body.innerHTML = Object.entries(permissions || {}).map(([role, capabilities]) =>
+          `<tr><td><strong>${esc(role[0].toUpperCase() + role.slice(1))}</strong></td><td>${role === 'admin' ? 'Full platform administration' : role === 'faculty' ? 'Teaching and class management' : 'Learning and participation'}</td><td>${capabilities.map(esc).join('<br>')}</td></tr>`
+        ).join('');
+      } catch (err) { body.innerHTML = `<tr><td colspan="3">${esc(err.message)}</td></tr>`; }
+    }
+
+    async function loadSettings() {
+      const form = document.getElementById('settingsForm');
+      try {
+        const { settings } = await CA.Admin.getSettings();
+        form.elements.platform_name.value = settings.platform_name || 'CodeArena';
+        form.elements.registration_open.checked = !!settings.registration_open;
+        form.elements.maintenance_mode.checked = !!settings.maintenance_mode;
+        form.elements.max_submissions_per_minute.value = Number(settings.max_submissions_per_minute) || 30;
+      } catch (err) { document.getElementById('settingsMessage').textContent = err.message; }
+    }
+
+    document.getElementById('settingsForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const settings = {
+        platform_name: form.elements.platform_name.value.trim(),
+        registration_open: form.elements.registration_open.checked,
+        maintenance_mode: form.elements.maintenance_mode.checked,
+        max_submissions_per_minute: Number(form.elements.max_submissions_per_minute.value)
+      };
+      const message = document.getElementById('settingsMessage');
+      try { await CA.Admin.updateSettings(settings); message.textContent = 'Settings saved.'; }
+      catch (err) { message.textContent = err.message; }
+    });
+
+    async function loadActivityInto(elementId, limit = 40) {
+      const target = document.getElementById(elementId);
+      if (!target) return;
+      try {
+        const { activities } = await CA.Admin.getActivity(limit);
+        if (!activities?.length) { target.textContent = 'No activity has been recorded yet.'; return; }
+        target.innerHTML = `<div class="table-wrap"><table style="min-width:560px"><thead><tr><th>Time</th><th>Activity</th><th>By</th><th>Target</th></tr></thead><tbody>${activities.map(item => `<tr><td>${esc(new Date(item.created_at).toLocaleString())}</td><td>${esc(item.action)}</td><td>${esc(item.actor_name)} (${esc(item.actor_role)})</td><td>${item.target_user_id ? `#${Number(item.target_user_id)}` : '—'}</td></tr>`).join('')}</tbody></table></div>`;
+      } catch (err) { target.textContent = err.message; }
+    }
+
+    function loadAuditLogs() { loadActivityInto('auditLogs', 100); }
+    document.getElementById('searchButton').addEventListener('click',loadUsers);
+    document.getElementById('roleFilter').addEventListener('change',loadUsers);
+    document.getElementById('search').addEventListener('keydown',e=>{if(e.key==='Enter')loadUsers()});
+    loadStats(); loadUsers();
+  </script>
+</body>
+</html>

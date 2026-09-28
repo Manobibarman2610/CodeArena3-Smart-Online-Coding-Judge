@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeArena — Smart Online Coding Judge & Practice Platform</title>
+  <meta name="description" content="An intelligent online coding judge and educational practice platform for students and faculty. Multi-language sandboxed evaluation, real-time verdicts, and AI code diagnostics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- KaTeX for LaTeX Math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+<body>
+
+  <!-- ── TOP READING PROGRESS BAR ── -->
+  <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+
+  <!-- ── 2. STICKY GLASS NAVBAR (HEIGHT 80PX, SINGLE HORIZONTAL LINE ON DESKTOP) ── -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon-box">&lt;/&gt;</div>
+        <div class="logo-text">
+          CodeArena
+          <span class="logo-sub">Smart Online Judge</span>
+        </div>
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#hero" class="nav-link active">Home</a></li>
+        <li><a href="#overview" class="nav-link">About</a></li>
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="pages/problem-detail.html?id=1" class="nav-link">Judge</a></li>
+        <li><a href="#problems" class="nav-link">Problems</a></li>
+        <li><a href="#practice" class="nav-link">Practice</a></li>
+        <li><a href="pages/dashboard-student.html" class="nav-link">Dashboard</a></li>
+        <li><a href="pages/dashboard-faculty.html" class="nav-link">Faculty</a></li>
+        <li><a href="pages/leaderboard.html" class="nav-link">Leaderboard</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navAuthActions">
+        <a href="pages/login.html" class="btn-ghost btn-sm" id="navLoginBtn">Sign In</a>
+        <a href="pages/login.html?tab=register" class="btn-primary btn-sm" id="navRegisterBtn">Get Started</a>
+      </div>
+
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── 1. FULL-SCREEN HERO SECTION (90–100VH BALANCED, ZERO EMPTY SPACE) ── -->
+  <header class="hero-section" id="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <!-- Hero Left: Typography & CTA Buttons (48%) -->
+        <div class="reveal" style="--delay: 0.08s">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            SMART ONLINE CODING JUDGE
+          </div>
+          <h1 class="hero-title">
+            Code. Test. Learn.<br />
+            <span class="text-purple">Improve.</span>
+          </h1>
+          <p class="hero-desc">
+            An intelligent online coding judge and educational practice platform designed for students and faculty. Write solutions across multiple languages, get instant sandboxed evaluation, and receive real-time AI code diagnostics.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="pages/problem-detail.html?id=1" class="btn-primary btn-lg">
+              Start Coding <span class="btn-arrow">→</span>
+            </a>
+            <a href="#problems" class="btn-secondary btn-lg">
+              Explore Problems
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Right: Large Animated Coding Video & Floating Status Cards (52%) -->
+        <div class="reveal-slide-right" style="--delay: 0.16s; position: relative">
+          <div class="hero-video-box">
+            <video
+              class="hero-video-tag"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="auto"
+              poster="hero_workspace.jpg"
+            >
+              <source src="https://res.cloudinary.com/troym0jo/video/upload/v1786730281/Create_animation_from_image_1080p_202608142326.mp4" type="video/mp4" />
+            </video>
+            <div class="hero-video-overlay"></div>
+          </div>
+
+          <!-- Floating Status Card 1: Sandbox Active -->
+          <div class="floating-ui-card float-hero-top">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success)"></div>
+            <div>
+              <div style="font-weight:700;font-size:0.88rem;color:var(--text-main);line-height:1.2">Sandbox Active</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace">Python &bull; C++ &bull; Java</div>
+            </div>
+          </div>
+
+          <!-- Floating Status Card 2: Accepted (100%) -->
+          <div class="floating-ui-card float-hero-bottom">
+            <div class="logo-icon-box" style="width:28px;height:28px;font-size:0.8rem;background:var(--success);box-shadow:0 2px 6px rgba(22,163,74,0.3)">✓</div>
+            <div>
+              <div style="font-weight:700;font-size:0.88rem;color:var(--text-main);line-height:1.2">Accepted (100%)</div>
+              <div style="font-size:0.75rem;color:var(--success-text);font-family:'JetBrains Mono',monospace">Runtime: 24ms &bull; 5/5 Passed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integrated Statistics Row with Animated Counters -->
+      <div class="hero-stats-bar reveal">
+        <div class="hero-stat-card">
+          <span class="hero-stat-val stat-count" data-target="150" data-plus="true">0</span>
+          <span class="hero-stat-lbl">Practice Programs</span>
+        </div>
+        <div class="stat-v-sep"></div>
+        <div class="hero-stat-card">
+          <span class="hero-stat-val stat-count" data-target="25" data-plus="true">0</span>
+          <span class="hero-stat-lbl">DSA Challenges</span>
+        </div>
+        <div class="stat-v-sep"></div>
+        <div class="hero-stat-card">
+          <span class="hero-stat-val stat-count" data-target="5" data-plus="true">0</span>
+          <span class="hero-stat-lbl">Languages Supported</span>
+        </div>
+        <div class="stat-v-sep"></div>
+        <div class="hero-stat-card">
+          <span class="hero-stat-val">&lt; 50ms</span>
+          <span class="hero-stat-lbl">Execution Speed</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── 2. PLATFORM OVERVIEW SECTION (100VH) ── -->
+  <section class="fullscreen-section section-alt" id="overview">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Platform Overview</span>
+        <h2 class="section-title">Everything You Need to Become a Better Coder</h2>
+        <p class="section-desc">A complete academic coding environment engineered to bridge classroom algorithms with hands-on competitive coding.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card-hover reveal" style="--delay: 0.08s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">⚡</div>
+          <h3 style="margin-bottom:0.45rem">Online Code Editor</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">
+            Write and test code directly in the browser with auto-completion, indentation, and starter syntax templates.
+          </p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay: 0.14s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">🎯</div>
+          <h3 style="margin-bottom:0.45rem">Automatic Evaluation</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">
+            Submit your solution and get instant test-case results across edge cases, boundary numbers, and stress inputs.
+          </p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay: 0.2s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">💻</div>
+          <h3 style="margin-bottom:0.45rem">Multiple Languages</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">
+            Practice using C, C++, Java, Python, and JavaScript with isolated compilers and execution runners.
+          </p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay: 0.26s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">🤖</div>
+          <h3 style="margin-bottom:0.45rem">AI Code Assistant</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">
+            Get intelligent explanations, bug identification, and time/space complexity optimization suggestions for your code.
+          </p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay: 0.32s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">📚</div>
+          <h3 style="margin-bottom:0.45rem">Coding Practice</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">
+            Practice 150+ structured programming exercises organized by language, difficulty levels, and algorithmic topics.
+          </p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay: 0.38s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">📊</div>
+          <h3 style="margin-bottom:0.45rem">Performance Tracking</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">
+            Track submissions, accuracy scores, 14-day coding streaks, and topic mastery to pinpoint weak areas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. HOW IT WORKS – ANIMATED SCROLL SECTION (100VH) ── -->
+  <section class="fullscreen-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Animated Workflow</span>
+        <h2 class="section-title">How CodeArena Works</h2>
+        <p class="section-desc">Experience the seamless 5-step journey from choosing a problem to receiving instant verdicts and AI feedback.</p>
+      </div>
+
+      <!-- Process Step Navigation Buttons -->
+      <div class="pipeline-steps-nav reveal">
+        <div class="step-nav-pill active-step" onclick="setStoryStep(0)">
+          <div class="step-pill-num">Step 01</div>
+          <div class="step-pill-title">Choose a Problem</div>
+        </div>
+        <div class="step-nav-pill" onclick="setStoryStep(1)">
+          <div class="step-pill-num">Step 02</div>
+          <div class="step-pill-title">Write Your Code</div>
+        </div>
+        <div class="step-nav-pill" onclick="setStoryStep(2)">
+          <div class="step-pill-num">Step 03</div>
+          <div class="step-pill-title">Run & Submit</div>
+        </div>
+        <div class="step-nav-pill" onclick="setStoryStep(3)">
+          <div class="step-pill-num">Step 04</div>
+          <div class="step-pill-title">Auto Evaluation</div>
+        </div>
+        <div class="step-nav-pill" onclick="setStoryStep(4)">
+          <div class="step-pill-num">Step 05</div>
+          <div class="step-pill-title">Feedback & Improve</div>
+        </div>
+      </div>
+
+      <!-- Interactive Step Display Card -->
+      <div class="card reveal" style="padding:0;overflow:hidden;box-shadow:var(--shadow-lg)">
+        <div style="background:var(--bg-subtle);padding:0.85rem 1.4rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+          <div style="display:flex;gap:6px">
+            <span style="width:10px;height:10px;border-radius:50%;background:#ef4444"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#10b981"></span>
+          </div>
+          <span id="storyFilename" style="color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600">two_sum.cpp</span>
+          <span id="storyLangPill" class="diff-pill dp-Medium">C++17</span>
+        </div>
+
+        <pre style="padding:1.6rem;font-family:'JetBrains Mono',monospace;font-size:0.92rem;background:#090d1a;color:#e2e8f0;line-height:1.65;margin:0;overflow-x:auto"><code id="storyCodeBody">// Problem 1: Two Sum (Easy)
+// Given nums = [2, 7, 11, 15], target = 9
+// Return indices [0, 1] because nums[0] + nums[1] == 9
+
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+using namespace std;</code></pre>
+
+        <div style="padding:1.1rem 1.6rem;background:var(--bg-surface);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem">
+          <div>
+            <span id="storyVerdictPill" class="diff-pill dp-Medium">Ready to Solve</span>
+          </div>
+          <div id="storyMetaText" style="color:var(--text-muted);font-size:0.9rem">
+            Select from 150+ categorized programs and DSA challenges
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. LIVE CODE EXECUTION DARK CONTRAST SECTION (100VH) ── -->
+  <section class="fullscreen-section section-dark-contrast" id="live-judge">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Live Sandbox Engine</span>
+        <h2 class="section-title">Automated Code Execution in Action</h2>
+        <p class="section-desc">Watch how CodeArena compiles, executes, and evaluates test cases in real time with isolated resource sandboxes.</p>
+      </div>
+
+      <div class="dark-ide-card reveal" style="position:relative">
+        <div class="dark-ide-topbar">
+          <div style="display:flex;align-items:center;gap:0.85rem">
+            <span style="color:#ffffff;font-weight:700;font-size:0.96rem;font-family:'JetBrains Mono',monospace">solution.cpp</span>
+            <span class="diff-pill dp-Easy" style="font-size:0.75rem">C++17 (g++)</span>
+          </div>
+
+          <!-- AI Robot Companion in Sandbox -->
+          <div style="display:flex;align-items:center;gap:0.85rem">
+            <div id="demoRobotBadge" style="display:flex;align-items:center;gap:0.4rem;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);border-radius:var(--radius-full);padding:0.25rem 0.75rem;font-size:0.75rem;color:#c4b5fd;font-weight:600">
+              <span style="width:6px;height:6px;border-radius:50%;background:#34d399"></span>
+              <span id="demoRobotSpeech">AI Mentor: Watching Code Execution</span>
+            </div>
+            <button class="btn-primary btn-sm" id="btnRunDemo" onclick="runDemoExecution()">
+              ▶ Run Sandbox Execution
+            </button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.2fr 1fr">
+          <!-- Editor Code Side -->
+          <div class="dark-ide-code">
+            <pre><code><span style="color:#c084fc">#include</span> <span style="color:#34d399">&lt;iostream&gt;</span>
+<span style="color:#c084fc">#include</span> <span style="color:#34d399">&lt;vector&gt;</span>
+<span style="color:#c084fc">#include</span> <span style="color:#34d399">&lt;unordered_map&gt;</span>
+<span style="color:#c084fc">using namespace</span> std;
+
+<span style="color:#38bdf8">vector</span>&lt;<span style="color:#38bdf8">int</span>&gt; <span style="color:#60a5fa">twoSum</span>(<span style="color:#38bdf8">vector</span>&lt;<span style="color:#38bdf8">int</span>&gt;&amp; nums, <span style="color:#38bdf8">int</span> target) {
+    <span style="color:#38bdf8">unordered_map</span>&lt;<span style="color:#38bdf8">int</span>, <span style="color:#38bdf8">int</span>&gt; map;
+    <span style="color:#c084fc">for</span> (<span style="color:#38bdf8">int</span> i = <span style="color:#fbbf24">0</span>; i &lt; nums.size(); i++) {
+        <span style="color:#38bdf8">int</span> diff = target - nums[i];
+        <span style="color:#c084fc">if</span> (map.count(diff)) <span style="color:#c084fc">return</span> {map[diff], i};
+        map[nums[i]] = i;
+    }
+    <span style="color:#c084fc">return</span> {};
+}</code></pre>
+          </div>
+
+          <!-- Execution Test Case Live Log -->
+          <div style="background:#0c111e;padding:1.6rem;border-left:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.95rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(255,255,255,0.08)">
+                <span style="font-weight:700;font-size:0.88rem;color:#ffffff">Sandbox Terminal Output</span>
+                <span class="diff-pill dp-Easy" id="demoStatusLine">Accepted — 100%</span>
+              </div>
+              <div id="demoTestCasesLog" style="display:flex;flex-direction:column;gap:0.4rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem">
+                <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+                  <span style="color:#34d399;font-weight:600">✓ Test Case 1 Passed</span>
+                  <span style="color:#94a3b8;font-size:0.82rem">Sample Case 1 (4ms)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+                  <span style="color:#34d399;font-weight:600">✓ Test Case 2 Passed</span>
+                  <span style="color:#94a3b8;font-size:0.82rem">Sample Case 2 (3ms)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+                  <span style="color:#34d399;font-weight:600">✓ Test Case 3 Passed</span>
+                  <span style="color:#94a3b8;font-size:0.82rem">Boundary Case (4ms)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+                  <span style="color:#34d399;font-weight:600">✓ Test Case 4 Passed</span>
+                  <span style="color:#94a3b8;font-size:0.82rem">Stress Array (7ms)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.35rem 0">
+                  <span style="color:#34d399;font-weight:600">✓ Test Case 5 Passed</span>
+                  <span style="color:#94a3b8;font-size:0.82rem">Negative Ints (6ms)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Metrics Banner -->
+            <div id="demoMetricsBar" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-sm);padding:0.8rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;font-family:'JetBrains Mono',monospace;margin-top:1.15rem">
+              <span style="color:#34d399;font-weight:700">✓ 5/5 Passed</span>
+              <span style="color:#e2e8f0">Runtime: <strong>24 ms</strong></span>
+              <span style="color:#e2e8f0">Memory: <strong>12.4 MB</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 5. PROBLEMS & PRACTICE SECTION (100VH) ── -->
+  <section class="fullscreen-section section-alt" id="problems">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Problem Bank & Practice</span>
+        <h2 class="section-title">Explore Coding Challenges</h2>
+        <p class="section-desc">Search and practice 150+ structured language exercises and 25+ standard DSA challenges.</p>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div style="display:flex;justify-content:center;gap:0.75rem;margin-bottom:2.25rem;flex-wrap:wrap" class="reveal">
+        <button class="btn-primary btn-sm prob-filter-btn" onclick="filterProblemCards('all', this)">All</button>
+        <button class="btn-secondary btn-sm prob-filter-btn" onclick="filterProblemCards('Easy', this)">Easy</button>
+        <button class="btn-secondary btn-sm prob-filter-btn" onclick="filterProblemCards('Medium', this)">Medium</button>
+        <button class="btn-secondary btn-sm prob-filter-btn" onclick="filterProblemCards('Hard', this)">Hard</button>
+        <button class="btn-secondary btn-sm prob-filter-btn" onclick="filterProblemCards('DSA', this)">DSA</button>
+      </div>
+
+      <!-- Problem Cards -->
+      <div style="display:flex;flex-direction:column;gap:0.95rem" class="reveal">
+        <div class="problem-card-item" data-diff="Easy">
+          <div>
+            <a href="pages/problem-detail.html?id=1" class="prob-title-text">Two Sum</a>
+            <div class="prob-meta-row">
+              <span class="diff-pill dp-Easy">Easy</span>
+              <span class="tag-pill">Array</span>
+              <span class="tag-pill">Hash Map</span>
+              <span>&bull; Solved: 1,245 times</span>
+            </div>
+          </div>
+          <a href="pages/problem-detail.html?id=1" class="btn-primary btn-sm">Solve <span class="btn-arrow">→</span></a>
+        </div>
+
+        <div class="problem-card-item" data-diff="Easy">
+          <div>
+            <a href="pages/problem-detail.html?id=5" class="prob-title-text">Binary Search</a>
+            <div class="prob-meta-row">
+              <span class="diff-pill dp-Easy">Easy</span>
+              <span class="tag-pill">Searching</span>
+              <span class="tag-pill">Array</span>
+              <span>&bull; Solved: 1,120 times</span>
+            </div>
+          </div>
+          <a href="pages/problem-detail.html?id=5" class="btn-primary btn-sm">Solve <span class="btn-arrow">→</span></a>
+        </div>
+
+        <div class="problem-card-item" data-diff="Medium">
+          <div>
+            <a href="pages/problem-detail.html?id=4" class="prob-title-text">Reverse Linked List</a>
+            <div class="prob-meta-row">
+              <span class="diff-pill dp-Medium">Medium</span>
+              <span class="tag-pill">Linked List</span>
+              <span class="tag-pill">Pointers</span>
+              <span>&bull; Solved: 840 times</span>
+            </div>
+          </div>
+          <a href="pages/problem-detail.html?id=4" class="btn-primary btn-sm">Solve <span class="btn-arrow">→</span></a>
+        </div>
+
+        <div class="problem-card-item" data-diff="Hard">
+          <div>
+            <a href="pages/problem-detail.html?id=6" class="prob-title-text">Graph Traversal & Shortest Path</a>
+            <div class="prob-meta-row">
+              <span class="diff-pill dp-Hard">Hard</span>
+              <span class="tag-pill">Graphs</span>
+              <span class="tag-pill">BFS / DFS</span>
+              <span>&bull; Solved: 420 times</span>
+            </div>
+          </div>
+          <a href="pages/problem-detail.html?id=6" class="btn-primary btn-sm">Solve <span class="btn-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:2.5rem" class="reveal" id="practice">
+        <a href="pages/dashboard-student.html" class="btn-secondary">
+          View Complete 150+ Problem Collection in Dashboard →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. STUDENT DASHBOARD SECTION (100VH) ── -->
+  <section class="fullscreen-section" id="dashboard">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Student Experience</span>
+        <h2 class="section-title">Personalized Student Analytics</h2>
+        <p class="section-desc">Track coding consistency, accuracy scores, 14-day streaks, and topic-by-topic mastery.</p>
+      </div>
+
+      <div class="grid-2 reveal" style="align-items:center">
+        <div>
+          <h3 style="font-size:1.75rem;margin-bottom:0.85rem">Comprehensive Skill Dossier</h3>
+          <p style="color:var(--text-body);margin-bottom:1.6rem;line-height:1.65">
+            CodeArena aggregates all submission records to highlight your top strengths and prescribe personalized practice paths.
+          </p>
+
+          <div style="display:flex;flex-direction:column;gap:0.85rem;margin-bottom:1.85rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.15rem;background:var(--bg-surface);border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <span style="font-weight:600">Array & Hash Map Mastery</span>
+              <span class="diff-pill dp-Easy">85% Accuracy &bull; Strong</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.15rem;background:var(--bg-surface);border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <span style="font-weight:600">Dynamic Programming</span>
+              <span class="diff-pill dp-Hard">40% Accuracy &bull; Needs Practice</span>
+            </div>
+          </div>
+
+          <a href="pages/dashboard-student.html" class="btn-primary">View Student Dashboard →</a>
+        </div>
+
+        <!-- Dashboard Analytics Preview Card -->
+        <div class="card" style="background:#ffffff;box-shadow:var(--shadow-lg)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.4rem">
+            <div style="background:var(--bg-surface);padding:1.15rem;border-radius:var(--radius-sm);text-align:center;border:1px solid var(--border)">
+              <div style="font-size:1.9rem;font-weight:800;color:var(--primary)" class="stat-count" data-target="24">0</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);font-weight:600">Problems Solved</div>
+            </div>
+            <div style="background:var(--bg-surface);padding:1.15rem;border-radius:var(--radius-sm);text-align:center;border:1px solid var(--border)">
+              <div style="font-size:1.9rem;font-weight:800;color:var(--success-text)" class="stat-count" data-target="82">0</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);font-weight:600">% Accuracy Rate</div>
+            </div>
+          </div>
+
+          <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.6rem;color:var(--text-main)">Submission Activity Heatmap</div>
+          <div style="display:grid;grid-template-columns:repeat(18,1fr);gap:5px">
+            <div style="aspect-ratio:1;border-radius:2px;background:#e2e8f0"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#c4b5fd"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#e2e8f0"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#c4b5fd"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#c4b5fd"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#e2e8f0"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#c4b5fd"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#e2e8f0"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#c4b5fd"></div>
+            <div style="aspect-ratio:1;border-radius:2px;background:#7c3aed"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 8. FACULTY / ADMIN SECTION (100VH) ── -->
+  <section class="fullscreen-section section-alt" id="faculty">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Faculty & Academic Tools</span>
+        <h2 class="section-title">Complete Classroom Management</h2>
+        <p class="section-desc">Empower educators to create custom challenges, evaluate student cohorts, and conduct timed coding contests.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card-hover reveal" style="--delay:0.08s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">✏️</div>
+          <h3 style="margin-bottom:0.45rem">Create Problems</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">Author custom coding problems with difficulty levels, tags, starter code templates, and constraints.</p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay:0.14s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">🧪</div>
+          <h3 style="margin-bottom:0.45rem">Add Test Cases</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">Configure hidden and sample test cases with strict CPU time limits and memory boundaries.</p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay:0.2s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">🏆</div>
+          <h3 style="margin-bottom:0.45rem">Conduct Coding Contests</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">Organize timed sprint contests, campus competitions, and lab assignments with live scoring.</p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay:0.26s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">👥</div>
+          <h3 style="margin-bottom:0.45rem">Monitor Students</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">Inspect real-time student participation, submission accuracy, and individual progress rosters.</p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay:0.32s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">📈</div>
+          <h3 style="margin-bottom:0.45rem">Performance Reports</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">Export batch grades, assess common code bottlenecks, and analyze concept mastery across classes.</p>
+        </div>
+
+        <div class="card card-hover reveal" style="--delay:0.38s">
+          <div class="logo-icon-box" style="margin-bottom:1.25rem;background:var(--primary-light);color:var(--primary);box-shadow:none">🛡️</div>
+          <h3 style="margin-bottom:0.45rem">Manage Submissions</h3>
+          <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6">Review full submission source code, execution outputs, and automated similarity flags.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 9. LEADERBOARD SECTION (100VH) ── -->
+  <section class="fullscreen-section" id="leaderboard">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Competitive Standings</span>
+        <h2 class="section-title">Global Leaderboard</h2>
+        <p class="section-desc">See where you stand among top competitive student coders.</p>
+      </div>
+
+      <div class="card reveal" style="max-width:920px;margin:0 auto;padding:0;overflow:hidden;box-shadow:var(--shadow-lg)">
+        <table style="width:100%;border-collapse:collapse;text-align:left">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg-surface)">
+              <th style="padding:1rem 1.4rem;color:var(--text-muted);font-size:0.85rem;text-transform:uppercase">Rank</th>
+              <th style="padding:1rem 1.4rem;color:var(--text-muted);font-size:0.85rem;text-transform:uppercase">Coder</th>
+              <th style="padding:1rem 1.4rem;color:var(--text-muted);font-size:0.85rem;text-transform:uppercase">Solved</th>
+              <th style="padding:1rem 1.4rem;color:var(--text-muted);font-size:0.85rem;text-transform:uppercase">Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:1.15rem 1.4rem;font-weight:800;color:#d97706;font-size:1.15rem">🥇 #1</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">Alex Coder <span style="font-size:0.8rem;color:var(--text-muted)">(MIT)</span></td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">24</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:700;color:var(--primary)">1450</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:1.15rem 1.4rem;font-weight:800;color:#64748b;font-size:1.1rem">🥈 #2</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">Priya Sharma <span style="font-size:0.8rem;color:var(--text-muted)">(Stanford)</span></td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">22</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:700;color:var(--primary)">1390</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:1.15rem 1.4rem;font-weight:800;color:#b45309;font-size:1.1rem">🥉 #3</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">Dev Patel <span style="font-size:0.8rem;color:var(--text-muted)">(IIT Bombay)</span></td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">19</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:700;color:var(--primary)">1340</td>
+            </tr>
+            <tr>
+              <td style="padding:1.15rem 1.4rem;font-weight:700;color:var(--text-muted);font-family:'JetBrains Mono',monospace">#4</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">Sarah Jenkins <span style="font-size:0.8rem;color:var(--text-muted)">(Oxford)</span></td>
+              <td style="padding:1.15rem 1.4rem;font-weight:600">17</td>
+              <td style="padding:1.15rem 1.4rem;font-weight:700;color:var(--primary)">1280</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="text-align:center;padding:1.35rem;background:var(--bg-surface);border-top:1px solid var(--border)">
+          <a href="pages/leaderboard.html" class="btn-outline btn-sm">View Full Leaderboard →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 10. FINAL CALL TO ACTION (COMPACT 220-280PX BANNER CARD) ── -->
+  <section class="cta-compact-wrapper" id="cta-section">
+    <div class="container">
+      <div class="cta-compact-banner reveal">
+        <!-- Left / Center: Title, Subtitle, Buttons -->
+        <div class="cta-content-left">
+          <h2 class="cta-title-compact">Ready to Code Smarter?</h2>
+          <div class="cta-subtitle-compact">Practice. Submit. Improve.</div>
+          <div class="cta-buttons-compact">
+            <a href="pages/login.html?tab=register" class="btn-primary">
+              Start Coding <span class="btn-arrow">→</span>
+            </a>
+            <a href="#problems" class="btn-secondary">
+              Explore Problems
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Side: Compact CodeArena AI Robot Inside Box Pointing Left -->
+        <div class="cta-robot-compact-box" title="CodeArena AI Companion">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+            <!-- Antenna with glowing cyan tip -->
+            <line x1="100" y1="42" x2="100" y2="16" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="100" cy="14" r="7" fill="#22d3ee" stroke="#7c3aed" stroke-width="2.5">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
+            </circle>
+
+            <!-- Robot Head -->
+            <rect x="45" y="42" width="110" height="84" rx="28" fill="#ffffff" stroke="#7c3aed" stroke-width="4"/>
+            <rect x="36" y="68" width="9" height="26" rx="4" fill="#a78bfa" stroke="#7c3aed" stroke-width="2"/>
+            <rect x="155" y="68" width="9" height="26" rx="4" fill="#a78bfa" stroke="#7c3aed" stroke-width="2"/>
+
+            <!-- Dark Visor Display Screen -->
+            <rect x="58" y="55" width="84" height="56" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+
+            <!-- Eyes (Looking left toward buttons + Natural Blink) -->
+            <g id="ctaCompactEyes">
+              <rect x="72" y="70" width="18" height="24" rx="9" fill="#7c3aed">
+                <animate attributeName="height" values="24;24;2;24;24" keyTimes="0;0.45;0.5;0.55;1" dur="4s" repeatCount="indefinite" />
+              </rect>
+              <circle cx="77" cy="80" r="5" fill="#22d3ee" />
+
+              <rect x="110" y="70" width="18" height="24" rx="9" fill="#7c3aed">
+                <animate attributeName="height" values="24;24;2;24;24" keyTimes="0;0.45;0.5;0.55;1" dur="4s" repeatCount="indefinite" />
+              </rect>
+              <circle cx="115" cy="80" r="5" fill="#22d3ee" />
+            </g>
+
+            <!-- Torso Base & Core </> -->
+            <path d="M65 130 C65 125, 135 125, 135 130 L145 175 C145 182, 55 182, 55 175 Z" fill="#ffffff" stroke="#7c3aed" stroke-width="4"/>
+            <circle cx="100" cy="155" r="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+            <text x="100" y="159" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" fill="#7c3aed" text-anchor="middle">&lt;/&gt;</text>
+
+            <!-- Pointing Arm (Pointing toward buttons on the left) -->
+            <g class="cta-pointing-arm">
+              <path d="M56 142 L24 132" stroke="#7c3aed" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="22" cy="131" r="7" fill="#ffffff" stroke="#7c3aed" stroke-width="2.5"/>
+              <path d="M22 131 L10 128" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
+            </g>
+
+            <circle cx="152" cy="155" r="9" fill="#ffffff" stroke="#7c3aed" stroke-width="3"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 11. FOOTER ── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">CodeArena</div>
+          <p class="footer-desc">
+            An intelligent online coding judge and educational practice platform designed for computer science students and faculty.
+          </p>
+        </div>
+
+        <div>
+          <div class="footer-title">Platform</div>
+          <ul class="footer-links">
+            <li><a href="#problems">Problem Bank</a></li>
+            <li><a href="#practice">Language Practice</a></li>
+            <li><a href="#how-it-works">Execution Pipeline</a></li>
+            <li><a href="pages/leaderboard.html">Global Standings</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-title">Practice Tracks</div>
+          <ul class="footer-links">
+            <li><a href="pages/dashboard-student.html">C Practice Track</a></li>
+            <li><a href="pages/dashboard-student.html">C++ Practice Track</a></li>
+            <li><a href="pages/dashboard-student.html">Java Practice Track</a></li>
+            <li><a href="pages/dashboard-student.html">Python Practice Track</a></li>
+            <li><a href="pages/dashboard-student.html">JavaScript Track</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-title">Account</div>
+          <ul class="footer-links">
+            <li><a href="pages/login.html">Student Sign In</a></li>
+            <li><a href="pages/login.html">Faculty Sign In</a></li>
+            <li><a href="pages/login.html?tab=register">Register Account</a></li>
+            <li><a href="pages/dashboard-faculty.html">Faculty Portal</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 CodeArena &bull; Smart Online Coding Judge. All rights reserved.</div>
+        <div>Built for Academic & Educational Excellence</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/response.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

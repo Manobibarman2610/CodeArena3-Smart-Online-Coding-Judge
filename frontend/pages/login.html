@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In / Register — CodeArena</title>
+  <meta name="description" content="Sign in or create your CodeArena account to start practicing and solving coding challenges." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    :root {
+      --ca-purple: #8b5cf6;
+      --ca-purple-dark: #7c3aed;
+      --ca-purple-light: #ede9fe;
+      --ca-bg: #f4f0ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--ca-bg);
+      color: #1e293b;
+      position: relative;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── ORGANIC BACKGROUND SHAPES ── */
+    .bg-shape-top-left {
+      position: absolute;
+      top: -80px;
+      left: -100px;
+      width: 440px;
+      height: 440px;
+      background: radial-gradient(circle, #e9d5ff 0%, rgba(244, 240, 255, 0) 70%);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-shape-bottom-left {
+      position: absolute;
+      bottom: -120px;
+      left: -120px;
+      width: 580px;
+      height: 450px;
+      background: radial-gradient(ellipse at bottom left, #ddd6fe 0%, rgba(244, 240, 255, 0) 70%);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-shape-bottom-right {
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 500px;
+      height: 420px;
+      background: radial-gradient(ellipse at bottom right, #ddd6fe 0%, rgba(244, 240, 255, 0) 70%);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── TOP NAVIGATION ── */
+    .top-nav {
+      position: relative;
+      z-index: 10;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+    }
+
+    .brand-icon-box {
+      width: 42px;
+      height: 42px;
+      background: var(--ca-purple);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+    }
+
+    .brand-text-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--ca-purple);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .nav-links-right {
+      display: flex;
+      align-items: center;
+      gap: 2.25rem;
+    }
+
+    .nav-item-link {
+      color: #475569;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .nav-item-link:hover { color: var(--ca-purple); }
+
+    .nav-signin-btn {
+      background: var(--ca-purple);
+      color: #ffffff;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+      transition: all 0.2s ease;
+    }
+    .nav-signin-btn:hover { background: var(--ca-purple-dark); transform: translateY(-1px); }
+
+    /* ── PAGE MAIN TWO-COLUMN GRID ── */
+    .main-grid {
+      position: relative;
+      z-index: 5;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem 2rem 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 450px;
+      gap: 2rem;
+      align-items: flex-start;
+      flex: 1;
+    }
+
+    /* ── LEFT HERO COLUMN ── */
+    .hero-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top sub-flex: Text on left, Graduate illustration on right */
+    .hero-top-flex {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .hero-text-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-tag-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .hero-tag-bar {
+      width: 22px;
+      height: 3px;
+      background: var(--ca-purple);
+      border-radius: 2px;
+    }
+
+    .hero-tag-text {
+      color: var(--ca-purple);
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.03em;
+    }
+
+    .hero-heading {
+      font-size: 2.35rem;
+      font-weight: 800;
+      line-height: 1.16;
+      color: #0f172a;
+      margin: 0 0 1rem 0;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-heading .purple-text {
+      color: var(--ca-purple);
+    }
+
+    .hero-desc {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #64748b;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+    }
+
+    .btn-get-started {
+      background: var(--ca-purple);
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 1.6rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-get-started:hover { background: var(--ca-purple-dark); transform: translateY(-1px); }
+
+    .social-icons-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .social-icon {
+      color: #a78bfa;
+      transition: color 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .social-icon:hover { color: var(--ca-purple); }
+
+    /* Graduate Student Illustration Container (Inline beside text) */
+    .hero-illustration-block {
+      width: 100%;
+      max-width: 290px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-graduate-img {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 20px rgba(139, 92, 246, 0.12));
+      pointer-events: none;
+    }
+
+    /* ── CODEARENA AI ASSISTANT ROBOT (LOWER LEFT) ── */
+    .auth-helper-row {
+      margin-top: 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      animation: helper-slide-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes helper-slide-in {
+      0% { opacity: 0; transform: translateY(16px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .robot-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .robot-figure-box {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      animation: bot-float 3.8s ease-in-out infinite alternate;
+      cursor: pointer;
+    }
+
+    @keyframes bot-float {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(1deg); }
+      100% { transform: translateY(-9px) rotate(-1deg); }
+    }
+
+    .robot-svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 10px 20px rgba(139, 92, 246, 0.18));
+      transition: transform 0.3s ease;
+    }
+
+    .bot-pupil { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+    .bot-hand { transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: 50% 50%; }
+
+    .robot-state-email .bot-pupil { transform: translate(6px, 4px); }
+    .robot-state-password .bot-hand-left { transform: translate(24px, -34px) rotate(-35deg); }
+    .robot-state-password .bot-hand-right { transform: translate(-24px, -34px) rotate(35deg); }
+    .robot-state-password .bot-pupil { opacity: 0.15; }
+
+    .robot-state-thinking .robot-svg { animation: bot-think-spin 1.2s infinite linear; }
+    @keyframes bot-think-spin { 0% { transform: rotate(0deg); } 50% { transform: rotate(4deg); } 100% { transform: rotate(0deg); } }
+
+    .robot-state-success .robot-figure-box { animation: bot-celebrate 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite alternate; }
+    @keyframes bot-celebrate { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-16px) scale(1.08); } }
+
+    .robot-state-error .robot-svg { animation: bot-shake 0.4s ease-in-out; }
+    @keyframes bot-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 60% { transform: translateX(-4px); } }
+
+    .helper-status-chip {
+      margin-top: 0.35rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.2rem 0.75rem;
+      background: #ede9fe;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--ca-purple);
+    }
+
+    .helper-speech-bubble {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 0.85rem 1.15rem;
+      box-shadow: 0 10px 25px -4px rgba(139, 92, 246, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+      max-width: 250px;
+    }
+
+    .helper-speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -9px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 9px solid #ffffff;
+    }
+
+    .bubble-greeting { font-size: 0.88rem; font-weight: 700; color: var(--ca-purple); margin-bottom: 0.2rem; }
+    .bubble-message { font-size: 0.85rem; color: #1e293b; font-weight: 600; line-height: 1.35; }
+
+    /* ── RIGHT REGISTRATION CARD (EXACT MATCH) ── */
+    .auth-card-container {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+    }
+
+    .auth-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 2.25rem 2.5rem;
+      box-shadow: 0 20px 45px rgba(139, 92, 246, 0.08), 0 4px 12px rgba(15, 23, 42, 0.03);
+    }
+
+    .auth-tabs-bar {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 1.75rem;
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 4px;
+    }
+    
+    .auth-tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #64748b;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .auth-tab-btn.active {
+      background: #ffffff;
+      color: var(--ca-purple);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    .card-heading { font-size: 1.45rem; font-weight: 800; color: #0f172a; margin: 0 0 0.35rem 0; letter-spacing: -0.01em; }
+    .card-subtext { color: #64748b; font-size: 0.88rem; margin: 0 0 1.5rem 0; }
+
+    .form-field { margin-bottom: 1.1rem; }
+    .form-field label { display: block; font-size: 0.85rem; color: #1e293b; margin-bottom: 0.4rem; font-weight: 700; }
+    .form-field input, .form-field select {
+      width: 100%;
+      padding: 0.72rem 1rem;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      font-size: 0.92rem;
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+    .form-field input::placeholder { color: #94a3b8; }
+    .form-field input:focus, .form-field select:focus {
+      border-color: var(--ca-purple);
+      box-shadow: 0 0 0 3.5px rgba(139, 92, 246, 0.15);
+    }
+
+    .btn-submit-card {
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--ca-purple);
+      color: #ffffff;
+      font-size: 0.98rem;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      margin-top: 0.6rem;
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+    }
+    .btn-submit-card:hover { background: var(--ca-purple-dark); transform: translateY(-1px); }
+    .btn-submit-card:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .auth-error {
+      background: #fef2f2;
+      border: 1px solid #fecdd3;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #9f1239;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .auth-error.show { display: block; }
+
+    .auth-success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #166534;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .auth-success.show { display: block; }
+
+    .demo-creds-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+    }
+    
+    .demo-chip {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--ca-purple);
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0.25rem 0.25rem 0 0;
+    }
+    .demo-chip:hover { background: var(--ca-purple-light); border-color: var(--ca-purple); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1080px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .hero-top-flex {
+        grid-template-columns: 1fr 240px;
+      }
+      .auth-card-container { max-width: 500px; margin: 0 auto; }
+    }
+
+    @media (max-width: 768px) {
+      .hero-top-flex { grid-template-columns: 1fr; }
+      .hero-illustration-block { margin: 1rem auto 0; }
+    }
+
+    @media (max-width: 640px) {
+      .top-nav { padding: 1.25rem 1rem; }
+      .nav-links-right { display: none; }
+      .main-grid { padding: 1rem; }
+      .hero-heading { font-size: 2.1rem; }
+      .auth-helper-row { flex-direction: column; text-align: center; }
+      .helper-speech-bubble::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Decorative Wavy Background Shapes -->
+  <div class="bg-shape-top-left"></div>
+  <div class="bg-shape-bottom-left"></div>
+  <div class="bg-shape-bottom-right"></div>
+
+  <!-- ── TOP NAVIGATION ── -->
+  <header class="top-nav">
+    <a href="../index.html" class="brand-logo-group">
+      <div class="brand-icon-box">&lt;/&gt;</div>
+      <div class="brand-text-col">
+        <span class="brand-title">CodeArena</span>
+        <span class="brand-subtitle">SMART ONLINE JUDGE</span>
+      </div>
+    </a>
+    
+    <div class="nav-links-right">
+      <a href="../index.html" class="nav-item-link">Home</a>
+      <a href="../index.html#overview" class="nav-item-link">About</a>
+      <a href="../index.html#features" class="nav-item-link">Contact us</a>
+      <a href="login.html" class="nav-signin-btn" onclick="switchTab('login')">Sign In</a>
+    </div>
+  </header>
+
+  <!-- ── MAIN CONTENT TWO-COLUMN GRID ── -->
+  <main class="main-grid">
+    
+    <!-- ── LEFT HERO COLUMN ── -->
+    <div class="hero-col">
+      
+      <!-- Sub-grid: Hero text on left, Graduate illustration on right -->
+      <div class="hero-top-flex">
+        
+        <div class="hero-text-block">
+          <div class="hero-tag-row">
+            <div class="hero-tag-bar"></div>
+            <span class="hero-tag-text">Learn &nbsp; Practice &nbsp; Grow</span>
+          </div>
+
+          <h1 class="hero-heading">
+            Online platform<br />
+            for <span class="purple-text">your education</span>
+          </h1>
+
+          <p class="hero-desc">
+            Practice coding, solve real problems, track your<br />
+            progress and build your skills with CodeArena.<br />
+            Start your journey towards a brighter future<br />
+            today!
+          </p>
+
+          <div class="hero-cta-row">
+            <button class="btn-get-started" onclick="switchTab('register')">
+              Get Started
+            </button>
+            
+            <div class="social-icons-group">
+              <!-- Facebook Icon -->
+              <span class="social-icon" title="Facebook">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.891h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+              </span>
+              <!-- Twitter Icon -->
+              <span class="social-icon" title="Twitter">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+              </span>
+              <!-- GitHub Icon -->
+              <span class="social-icon" title="GitHub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrated Female Graduate Student Illustration (Exact Original Image from Reference 1) -->
+        <div class="hero-illustration-block">
+          <img src="../images/graduate_student.png" alt="Graduate Student Education Illustration" class="hero-graduate-img" />
+        </div>
+
+      </div>
+
+      <!-- ── CODEARENA AI ASSISTANT ROBOT (LOWER LEFT) ── -->
+      <div class="auth-helper-row" id="authHelperColumn">
+        <div class="robot-container">
+          <!-- Interactive Vector Robot Figure -->
+          <div class="robot-figure-box" id="robotFigureBox" onclick="triggerHelperPoke()" title="Click to greet CodeArena AI!">
+            <svg class="robot-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="100" y1="42" x2="100" y2="18" stroke="#8b5cf6" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="100" cy="14" r="7" fill="#22d3ee" stroke="#8b5cf6" stroke-width="2.5">
+                <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" />
+              </circle>
+
+              <rect x="45" y="42" width="110" height="84" rx="28" fill="#ffffff" stroke="#8b5cf6" stroke-width="4"/>
+              <rect x="36" y="68" width="9" height="26" rx="4" fill="#a78bfa" stroke="#8b5cf6" stroke-width="2"/>
+              <rect x="155" y="68" width="9" height="26" rx="4" fill="#a78bfa" stroke="#8b5cf6" stroke-width="2"/>
+
+              <rect x="58" y="55" width="84" height="56" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+
+              <g id="botEyesGroup">
+                <rect id="botEyeLeft" x="72" y="70" width="18" height="24" rx="9" fill="#8b5cf6">
+                  <animate attributeName="height" values="24;24;2;24;24" keyTimes="0;0.45;0.5;0.55;1" dur="4s" repeatCount="indefinite" />
+                </rect>
+                <circle class="bot-pupil" id="botPupilLeft" cx="81" cy="80" r="5" fill="#22d3ee" />
+
+                <rect id="botEyeRight" x="110" y="70" width="18" height="24" rx="9" fill="#8b5cf6">
+                  <animate attributeName="height" values="24;24;2;24;24" keyTimes="0;0.45;0.5;0.55;1" dur="4s" repeatCount="indefinite" />
+                </rect>
+                <circle class="bot-pupil" id="botPupilRight" cx="119" cy="80" r="5" fill="#22d3ee" />
+              </g>
+
+              <path d="M65 130 C65 125, 135 125, 135 130 L145 175 C145 182, 55 182, 55 175 Z" fill="#ffffff" stroke="#8b5cf6" stroke-width="4"/>
+              <circle cx="100" cy="155" r="14" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="100" y="159" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" fill="#8b5cf6" text-anchor="middle">&lt;/&gt;</text>
+
+              <g class="bot-hand bot-hand-left" id="botHandLeft">
+                <circle cx="48" cy="155" r="9" fill="#ffffff" stroke="#8b5cf6" stroke-width="3"/>
+              </g>
+              <g class="bot-hand bot-hand-right" id="botHandRight">
+                <circle cx="152" cy="155" r="9" fill="#ffffff" stroke="#8b5cf6" stroke-width="3"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="helper-status-chip">
+            <span style="width:7px;height:7px;border-radius:50%;background:#22c55e"></span>
+            CodeArena AI Assistant
+          </div>
+        </div>
+
+        <!-- Speech Bubble to the right of Robot -->
+        <div class="helper-speech-bubble" id="helperSpeechBubble">
+          <div class="bubble-greeting" id="bubbleGreeting">Hey Coder! 👋</div>
+          <div class="bubble-message" id="bubbleMessage">Ready to start coding? Please log in to continue.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT REGISTRATION CARD ── -->
+    <div class="auth-card-container">
+      <div class="auth-card">
+        
+        <!-- Tabs -->
+        <div class="auth-tabs-bar">
+          <div class="auth-tab-btn"        id="tab-login"    onclick="switchTab('login')">Sign In</div>
+          <div class="auth-tab-btn active" id="tab-register" onclick="switchTab('register')">Register</div>
+        </div>
+
+        <!-- ── REGISTER FORM (ACTIVE DEFAULT) ── -->
+        <form class="auth-form active" id="form-register" onsubmit="handleRegister(event)">
+          <h2 class="card-heading">Create Account</h2>
+          <p class="card-subtext">Join CodeArena to solve problems and track progress.</p>
+
+          <div class="form-field">
+            <label>Full Name</label>
+            <input type="text" id="reg-name" placeholder="Dev Patel" required />
+          </div>
+
+          <div class="form-field">
+            <label>Email Address</label>
+            <input type="email" id="reg-email" placeholder="dev@university.edu" required />
+          </div>
+
+          <div class="form-field">
+            <label>Password (min 6 characters)</label>
+            <input type="password" id="reg-password" placeholder="••••••••" minlength="6" required />
+          </div>
+
+          <div class="form-field">
+            <label>Account Role</label>
+            <select id="reg-role">
+              <option value="student" selected>Student / Coder</option>
+              <option value="faculty">Faculty / Instructor</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label>Institution / University (optional)</label>
+            <input type="text" id="reg-inst" placeholder="e.g. MIT / IIT / Stanford" />
+          </div>
+
+          <button type="submit" class="btn-submit-card" id="reg-submit-btn">Create Free Account →</button>
+          <div class="auth-error" id="reg-error"></div>
+          <div class="auth-success" id="reg-success"></div>
+        </form>
+
+        <!-- ── SIGN IN FORM ── -->
+        <form class="auth-form" id="form-login" onsubmit="handleLogin(event)">
+          <h2 class="card-heading">Welcome Back</h2>
+          <p class="card-subtext">Enter your email or username to access your dashboard.</p>
+
+          <div class="form-field">
+            <label for="login-role">Sign in as</label>
+            <select id="login-role" required>
+              <option value="" selected disabled>Choose account role</option>
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label>Email or Username</label>
+            <input type="text" id="login-email" placeholder="alex@student.com or Alex Coder" required />
+          </div>
+
+          <div class="form-field">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" required />
+          </div>
+
+          <button type="submit" class="btn-submit-card" id="login-submit-btn">Sign In to Arena →</button>
+          <div class="auth-error" id="login-error"></div>
+
+          <!-- Quick Fill Demo Accounts -->
+          <div class="demo-creds-box">
+            <div style="font-weight:700;color:var(--text-main);margin-bottom:0.35rem">Quick Demo Accounts:</div>
+            <span class="demo-chip" onclick="fillCreds('alex@student.com','Password@123')">Student (Alex)</span>
+            <span class="demo-chip" onclick="fillCreds('sharma@faculty.com','Faculty@123')">Faculty (Prof. Sharma)</span>
+            <span class="demo-chip" onclick="fillCreds('admin@codearena.io','Admin@123','admin')">Admin</span>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    window.__caApiUnavailable = function () {
+      const message = 'CodeArena could not load its API client. Open the app from http://localhost:5001/pages/login.html, and make sure the backend is running.';
+      const unavailable = () => Promise.reject(new Error(message));
+      const group = new Proxy({}, { get: () => unavailable });
+      window.CA = new Proxy({}, { get: (_target, key) => key === 'isLoggedIn' ? () => false : key === 'getUser' ? () => null : key === 'parseArray' ? value => Array.isArray(value) ? value : [] : group });
+      const notice = document.createElement('div');
+      notice.setAttribute('role', 'alert');
+      notice.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;padding:12px 18px;background:#7f1d1d;color:white;text-align:center;font:14px sans-serif';
+      notice.textContent = message;
+      document.body.prepend(notice);
+    };
+  </script>
+  <script src="../js/api.js" onerror="window.__caApiUnavailable()"></script>
+  <script>
+    /* ── ANIMATED LOGIN HELPER CONTROLLER ── */
+    const helperCol = document.getElementById('authHelperColumn');
+    const bubbleGreeting = document.getElementById('bubbleGreeting');
+    const bubbleMessage  = document.getElementById('bubbleMessage');
+
+    function setHelperState(stateClass, greeting, message) {
+      if (!helperCol) return;
+      helperCol.className = 'auth-helper-row ' + (stateClass || '');
+      if (greeting !== undefined) bubbleGreeting.textContent = greeting;
+      if (message !== undefined) {
+        bubbleMessage.style.opacity = '0';
+        setTimeout(() => {
+          bubbleMessage.textContent = message;
+          bubbleMessage.style.opacity = '1';
+        }, 150);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setHelperState('', 'Hey Coder! 👋', 'Ready to start coding? Please log in to continue.');
+      
+      const emailInput = document.getElementById('login-email');
+      const pwdInput   = document.getElementById('login-password');
+      const regInputs  = document.querySelectorAll('#form-register input, #form-register select');
+
+      if (emailInput) {
+        emailInput.addEventListener('focus', () => {
+          setHelperState('robot-state-email', 'Hey Coder! 👋', 'Enter your email 👀');
+        });
+        emailInput.addEventListener('blur', () => {
+          setHelperState('', 'CodeArena AI', 'Ready to start coding?');
+        });
+        emailInput.addEventListener('input', () => {
+          if (emailInput.value.length > 3 && bubbleMessage.textContent !== 'Looking good! 💻') {
+            bubbleMessage.textContent = 'Looking good! 💻';
+          }
+        });
+      }
+
+      if (pwdInput) {
+        pwdInput.addEventListener('focus', () => {
+          setHelperState('robot-state-password', 'Shhh! 🔒', 'Your secret is safe with me 🤫');
+        });
+        pwdInput.addEventListener('blur', () => {
+          setHelperState('', 'CodeArena AI', 'Ready to start coding?');
+        });
+      }
+
+      regInputs.forEach(input => {
+        input.addEventListener('focus', () => {
+          setHelperState('', 'New Coder! 🚀', 'Join our community of student coders!');
+        });
+      });
+    });
+
+    function triggerHelperPoke() {
+      setHelperState('robot-state-email', 'Beep Boop! 🤖', 'I’m your AI assistant! Need help logging in?');
+      setTimeout(() => {
+        setHelperState('', 'Hey Coder! 👋', 'Ready to start coding? Please log in to continue.');
+      }, 3000);
+    }
+
+    // Tab switching
+    function switchTab(tab) {
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+      document.getElementById('form-login').classList.toggle('active', tab === 'login');
+      document.getElementById('form-register').classList.toggle('active', tab === 'register');
+      clearErrors();
+
+      if (tab === 'register') {
+        setHelperState('', 'Welcome! ✨', 'Create your account to track challenges & submissions!');
+      } else {
+        setHelperState('', 'Hey Coder! 👋', 'Ready to start coding? Please log in to continue.');
+      }
+    }
+
+    function clearErrors() {
+      ['login-error', 'reg-error', 'reg-success'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.className = el.className.replace('show', '').trim();
+          el.textContent = '';
+        }
+      });
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = msg;
+        el.classList.add('show');
+      }
+    }
+
+    function showSuccess(id, msg) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = msg;
+        el.classList.add('show');
+      }
+    }
+
+    function fillCreds(email, pwd, role = '') {
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-password').value = pwd;
+      document.getElementById('login-role').value = role;
+      setHelperState('robot-state-email', 'Demo Credentials Loaded! ⚡', 'Click Sign In below to enter.');
+    }
+
+    // Handle Login
+    async function handleLogin(e) {
+      e.preventDefault();
+      clearErrors();
+      const btn   = document.getElementById('login-submit-btn');
+      const email = document.getElementById('login-email').value.trim();
+      const pwd   = document.getElementById('login-password').value;
+      const selectedRole = document.getElementById('login-role').value;
+
+      if (!selectedRole) {
+        showError('login-error', 'Choose Student, Faculty, or Admin to continue.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      
+      setHelperState('robot-state-thinking', 'Verifying... ⏳', 'Checking your account...');
+
+      try {
+        const data = await CA.Auth.login(email, pwd, selectedRole);
+        const accountRole = data.user?.role;
+        
+        setHelperState('robot-state-success', 'Awesome! 🎉', 'Welcome back, Coder! 🚀');
+
+        setTimeout(() => {
+          window.location.href = accountRole === 'admin'
+            ? 'dashboard-admin.html'
+            : accountRole === 'faculty' ? 'dashboard-faculty.html' : 'dashboard-student.html';
+        }, 900);
+      } catch (err) {
+        showError('login-error', err.message || 'Invalid email or password.');
+        setHelperState('robot-state-error', 'Notice ⚠️', 'Oops! Let’s try that again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In to Arena →';
+      }
+    }
+
+    // Handle Register
+    async function handleRegister(e) {
+      e.preventDefault();
+      clearErrors();
+      const btn   = document.getElementById('reg-submit-btn');
+      const name  = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pwd   = document.getElementById('reg-password').value;
+      const role  = document.getElementById('reg-role').value;
+      const inst  = document.getElementById('reg-inst').value.trim();
+
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+      setHelperState('robot-state-thinking', 'Registering... ⏳', 'Creating your profile...');
+
+      try {
+        const data = await CA.Auth.register(name, email, pwd, role, inst);
+        showSuccess('reg-success', 'Account created! Redirecting to dashboard...');
+        setHelperState('robot-state-success', 'Welcome Aboard! 🎉', 'Welcome back, Coder! 🚀');
+        setTimeout(() => {
+          window.location.href = role === 'faculty'
+            ? 'dashboard-faculty.html'
+            : 'dashboard-student.html';
+        }, 900);
+      } catch (err) {
+        showError('reg-error', err.message || 'Registration failed. Please check inputs.');
+        setHelperState('robot-state-error', 'Notice ⚠️', 'Oops! Let’s try that again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Free Account →';
+      }
+    }
+
+    // Auto switch to login tab if ?tab=login in URL
+    if (new URLSearchParams(window.location.search).get('tab') === 'login') {
+      switchTab('login');
+    }
+  </script>
+</body>
+</html>

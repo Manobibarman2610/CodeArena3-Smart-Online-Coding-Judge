@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard — CodeArena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    /* Clean Dashboard Specific Overrides */
+    body { background-color: var(--bg-page); min-height: 100vh; color: var(--text-body); }
+    
+    .dash-topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .dash-topbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text-main);
+    }
+    
+    .user-info { display: flex; align-items: center; gap: 0.85rem; }
+    .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.95rem;
+    }
+    .user-name { color: var(--text-main); font-weight: 600; font-size: 0.92rem; line-height: 1.2; }
+    .user-role { color: var(--text-muted); font-size: 0.78rem; text-transform: capitalize; }
+    
+    .dash-layout { display: flex; min-height: calc(100vh - 65px); }
+    .dash-side {
+      width: 250px; flex-shrink: 0;
+      background: #ffffff;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+    }
+    
+    .side-nav-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.7rem 1rem; border-radius: var(--radius-sm);
+      color: var(--text-body); font-weight: 500; font-size: 0.9rem;
+      text-decoration: none; margin-bottom: 0.35rem;
+      transition: var(--transition-fast);
+      cursor: pointer;
+    }
+    .side-nav-item:hover { background: var(--bg-page); color: var(--text-main); }
+    .side-nav-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .dash-content { flex: 1; padding: 2rem 2.5rem; overflow-y: auto; background: var(--bg-page); }
+    
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .metric-icon { font-size: 1.4rem; margin-bottom: 0.35rem; }
+    .metric-val  { font-size: 1.85rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
+    .metric-lbl  { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.25rem; font-weight: 500; }
+    
+    .section-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+    }
+    
+    /* Heatmap */
+    .heatmap-grid { display: grid; grid-template-columns: repeat(26, 1fr); gap: 4px; }
+    .h-cell {
+      aspect-ratio: 1; border-radius: 3px; background: #e2e8f0;
+      cursor: pointer; transition: transform 0.1s;
+    }
+    .h-cell:hover { transform: scale(1.3); }
+    
+    /* Submissions list */
+    .sub-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .sub-item {
+      display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1.15rem;
+      background: var(--bg-page); border-radius: var(--radius-sm); border: 1px solid var(--border);
+    }
+    .sub-name { flex: 1; color: var(--text-main); font-weight: 600; font-size: 0.92rem; }
+    .sub-lang { color: var(--text-muted); font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; }
+    .sub-time { color: var(--text-light); font-size: 0.8rem; }
+    
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    
+    .loading { color: var(--text-muted); text-align: center; padding: 2.5rem; font-size: 0.95rem; }
+    
+    /* Practice Lang Buttons */
+    .lang-btn {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text-body);
+      font-weight: 600;
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    .lang-btn:hover { border-color: var(--border-strong); background: var(--bg-page); }
+    .lang-btn.active-lang {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .problems-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .problems-table th { background: var(--bg-subtle); padding: 0.85rem 1.25rem; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .problems-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.92rem; color: var(--text-body); }
+    .problems-table tr:hover td { background: var(--bg-subtle); }
+    .prob-title-link { color: var(--text-main); font-weight: 600; text-decoration: none; }
+    .prob-title-link:hover { color: var(--primary); }
+    .problems-table-wrapper { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+    .filter-select, .filter-input { background: #ffffff; border: 1px solid var(--border); color: var(--text-main); padding: 0.65rem 0.95rem; border-radius: var(--radius-sm); outline: none; }
+    .filter-select:focus, .filter-input:focus { border-color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP BAR ── -->
+  <div class="dash-topbar">
+    <a href="../index.html" class="brand">
+      <div class="logo-icon-box" style="width:30px;height:30px;font-size:0.85rem">&lt;/&gt;</div>
+      <span>CodeArena</span>
+    </a>
+    <div class="user-info">
+      <div class="user-avatar" id="userInitial">?</div>
+      <div>
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role" id="userRole">student</div>
+      </div>
+      <button class="btn-danger btn-sm" onclick="CA.Auth.logout()" style="margin-left:0.5rem">Logout</button>
+    </div>
+  </div>
+
+  <div class="dash-layout">
+    <!-- ── SIDEBAR ── -->
+    <aside class="dash-side">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-light);letter-spacing:0.06em;margin-bottom:0.75rem;padding-left:0.5rem">Main Menu</div>
+      <a class="side-nav-item active" onclick="showSection('overview')"     href="#">📊 Overview</a>
+      <a class="side-nav-item"        onclick="showSection('assignments')"  href="#">📋 Faculty Assignments</a>
+      <a class="side-nav-item"        onclick="showSection('role-practice')" href="#">🚀 Role-Based Practice</a>
+      <a class="side-nav-item"        onclick="showSection('practice')"     href="#">💻 Language Tracks</a>
+      <a class="side-nav-item"        onclick="showSection('learning-path')" href="#">🧭 Learning Path</a>
+      <a class="side-nav-item"        onclick="showSection('problems')"     href="#">🎯 Problem Bank</a>
+      <a class="side-nav-item"        onclick="showSection('submissions')"  href="#">📝 My Submissions</a>
+      <a class="side-nav-item"        onclick="showSection('contests')"     href="#">🏆 Contests</a>
+
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-light);letter-spacing:0.06em;margin-top:1.5rem;margin-bottom:0.75rem;padding-left:0.5rem">Explore</div>
+      <a class="side-nav-item"        href="leaderboard.html">🌐 Global Leaderboard</a>
+      <a class="side-nav-item"        href="problem-detail.html?id=1">⚡ Code Editor</a>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="dash-content">
+
+      <!-- ── OVERVIEW ── -->
+      <div class="page-section active" id="section-overview">
+        <div style="margin-bottom:1.75rem">
+          <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Welcome back, <span id="greetName" style="color:var(--primary)">Coder</span> 👋</h2>
+          <p style="color:var(--text-muted);font-size:0.95rem">Here is your progress overview and recent activity.</p>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid">
+          <div class="metric-card">
+            <div class="metric-icon">🔥</div>
+            <div class="metric-val" id="m-solved">--</div>
+            <div class="metric-lbl">Problems Solved</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">🏆</div>
+            <div class="metric-val" id="m-contests">--</div>
+            <div class="metric-lbl">Contests Entered</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">⚡</div>
+            <div class="metric-val" id="m-rating">--</div>
+            <div class="metric-lbl">Rating Points</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">📅</div>
+            <div class="metric-val" id="m-streak">--</div>
+            <div class="metric-lbl">Day Streak</div>
+          </div>
+        </div>
+
+        <!-- Faculty Assignments Alert Card -->
+        <div id="overviewAssignmentAlert"></div>
+
+        <!-- Language Practice Overview Row -->
+        <div class="section-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <div class="section-card-title" style="margin:0">Language Practice Tracks (150 Programs)</div>
+            <button onclick="showSection('practice')" class="btn-outline btn-sm">View All Tracks →</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem" id="overviewPracticeTracks">
+            <div class="loading">Loading practice statistics...</div>
+          </div>
+        </div>
+
+        <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+          <div class="section-card">
+            <div class="section-card-title">Activity Heatmap <span style="color:var(--text-muted);font-size:0.8rem;font-weight:400">(Last 6 months)</span></div>
+            <div class="heatmap-grid" id="dashHeatmap"></div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-title">Recent Submissions</div>
+            <div class="sub-list" id="recentSubmissions"><div class="loading">Loading submissions...</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FACULTY ASSIGNMENTS & ASSIGNED PROBLEMS ── -->
+      <div class="page-section" id="section-assignments">
+        <div style="margin-bottom:1.5rem">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem;flex-wrap:wrap">
+            <h2 style="font-size:1.75rem;margin:0">📋 Faculty Assignments & Assigned Tasks</h2>
+            <span class="diff-pill dp-Easy" style="font-size:0.8rem;padding:0.25rem 0.65rem">Coursework</span>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.95rem">View coding assignments and problem sets assigned by your faculty members along with deadlines and live completion status.</p>
+        </div>
+
+        <div id="studentAssignmentsList">
+          <div class="loading">Loading assigned tasks from faculty...</div>
+        </div>
+      </div>
+
+      <!-- ── ROLE-BASED PRACTICE & PERSONALIZED ROADMAP ── -->
+      <div class="page-section" id="section-role-practice">
+        <div style="margin-bottom:1.5rem">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem;flex-wrap:wrap">
+            <h2 style="font-size:1.75rem;margin:0">🚀 Role-Based Practice & Career Roadmap</h2>
+            <span class="diff-pill dp-Easy" style="font-size:0.8rem;padding:0.25rem 0.65rem">Personalized</span>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.95rem">Select your target technical role and customize your topic preferences to get dynamic coding challenges tailored to your career goals.</p>
+        </div>
+
+        <!-- Career Role Selection Cards -->
+        <div style="font-size:0.85rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:0.75rem">1. Choose Your Career Role</div>
+        <div id="roleCardsGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:1rem;margin-bottom:1.5rem">
+          <div class="loading">Loading career roles...</div>
+        </div>
+
+        <!-- Customization Controls Panel -->
+        <div class="section-card" style="margin-bottom:1.5rem;background:#ffffff">
+          <div style="font-size:0.85rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:1rem">2. Customize Learning Preferences</div>
+          
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;margin-bottom:1.25rem">
+            <div>
+              <label style="display:block;font-size:0.82rem;font-weight:600;color:var(--text-main);margin-bottom:0.35rem">Preferred Programming Language</label>
+              <select class="filter-select" id="rolePrefLang" onchange="onRolePreferenceChanged()" style="width:100%">
+                <option value="cpp">C++ (Recommended for DSA)</option>
+                <option value="java">Java (OOP & DSA)</option>
+                <option value="python">Python (Data & AI)</option>
+                <option value="javascript">JavaScript (Web & Logic)</option>
+                <option value="c">C (Systems & Core)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:0.82rem;font-weight:600;color:var(--text-main);margin-bottom:0.35rem">Difficulty Level Filter</label>
+              <select class="filter-select" id="rolePrefDiff" onchange="onRolePreferenceChanged()" style="width:100%">
+                <option value="All">All Difficulty Levels</option>
+                <option value="Easy">Easy (Fundamentals)</option>
+                <option value="Medium">Medium (Standard Core)</option>
+                <option value="Hard">Hard (Advanced DSA)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:0.82rem;font-weight:600;color:var(--text-main);margin-bottom:0.5rem">Target DSA Topics Focus (Select Topics to Practice)</label>
+            <div id="dsaTopicChips" style="display:flex;gap:0.5rem;flex-wrap:wrap">
+              <!-- Topic chips injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Career Roadmap Header -->
+        <div class="section-card" id="roleRoadmapBanner" style="background:var(--primary-light);border-color:var(--primary-border);margin-bottom:1.5rem">
+          <div class="loading">Generating career roadmap...</div>
+        </div>
+
+        <!-- Role-Specific Recommended Questions Table -->
+        <div class="section-card" style="padding:1.25rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
+            <div>
+              <h3 style="margin:0;font-size:1.1rem;color:var(--text-main)">🎯 Dynamic Role Questions & Practice Feed</h3>
+              <div style="font-size:0.85rem;color:var(--text-muted)">Questions dynamically recommended for your selected role and DSA topic focus.</div>
+            </div>
+            <span class="diff-pill dp-Easy" id="roleTopicCountBadge">0 Topics Active</span>
+          </div>
+
+          <div class="problems-table-wrapper">
+            <table class="problems-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Topics</th>
+                  <th>Difficulty</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="roleQuestionsTableBody">
+                <tr><td colspan="6" class="loading">Loading role-specific questions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PRACTICE TRACKS ── -->
+      <div class="page-section" id="section-practice">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.75rem;margin-bottom:0.25rem">💻 Language Practice Tracks</h2>
+          <p style="color:var(--text-muted);font-size:0.95rem">Select a language to practice curated exercises from Basic to Hard DSA.</p>
+        </div>
+
+        <!-- Language Tabs -->
+        <div style="display:flex;gap:0.6rem;margin-bottom:1.5rem;flex-wrap:wrap">
+          <button class="lang-btn active-lang" onclick="selectPracticeLang('c', this)">C Practice</button>
+          <button class="lang-btn" onclick="selectPracticeLang('cpp', this)">C++ Practice</button>
+          <button class="lang-btn" onclick="selectPracticeLang('java', this)">Java Practice</button>
+          <button class="lang-btn" onclick="selectPracticeLang('python', this)">Python Practice</button>
+          <button class="lang-btn" onclick="selectPracticeLang('javascript', this)">JavaScript Practice</button>
+        </div>
+
+        <!-- Language Progress Banner -->
+        <div class="section-card" id="practiceSummaryCard" style="background:var(--primary-light);border-color:var(--primary-border);margin-bottom:1.5rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+            <div>
+              <h3 id="curLangTitle" style="color:var(--text-main);margin:0 0 0.35rem 0">C Practice</h3>
+              <div style="color:var(--text-body);font-size:0.88rem" id="curLangStats">Loading progress...</div>
+            </div>
+            <div style="text-align:right">
+              <div id="curLangPct" style="font-size:1.85rem;font-weight:800;color:var(--primary)">0%</div>
+              <div style="color:var(--text-muted);font-size:0.8rem;font-weight:500">Track Completion</div>
+            </div>
+          </div>
+          <div style="width:100%;height:8px;background:rgba(0,0,0,0.06);border-radius:4px;margin-top:1rem;overflow:hidden">
+            <div id="curLangBar" style="height:100%;width:0%;background:var(--primary);border-radius:4px;transition:width 0.4s ease"></div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="problems-filters" style="display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap">
+          <select class="filter-select" id="practice-cat" onchange="loadPracticePrograms()" style="max-width:220px">
+            <option value="">All Categories</option>
+          </select>
+          <select class="filter-select" id="practice-diff" onchange="loadPracticePrograms()" style="max-width:180px">
+            <option value="">All Difficulties</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+          <input class="filter-input" id="practice-search" placeholder="Search practice programs..." oninput="debouncePracticeSearch()" />
+        </div>
+
+        <!-- Practice Programs List -->
+        <div class="problems-table-wrapper">
+          <table class="problems-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>#</th>
+                <th>Program Title</th>
+                <th>Category</th>
+                <th>Difficulty</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="practiceTableBody"><tr><td colspan="6" class="loading">Loading practice programs...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PERSONALIZED LEARNING PATH ── -->
+      <div class="page-section" id="section-learning-path">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.75rem;margin-bottom:0.25rem">🧭 Personalized Learning Path & Recommendations</h2>
+          <p style="color:var(--text-muted);font-size:0.95rem">Adaptive challenge suggestions calculated from your recent submissions, accuracy, and weak concepts.</p>
+        </div>
+
+        <!-- Skill Level Progression -->
+        <div class="section-card" style="background:#ffffff;margin-bottom:1.5rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+            <div>
+              <div style="color:var(--text-muted);font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em">Current Skill Level</div>
+              <h2 id="lpCurrentLevel" style="color:var(--primary);margin:0.2rem 0;font-size:1.85rem">Intermediate</h2>
+            </div>
+            <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap">
+              <span class="diff-pill dp-Easy">Beginner</span> →
+              <span class="diff-pill dp-Medium">Intermediate</span> →
+              <span class="diff-pill dp-Hard">Advanced</span> →
+              <span class="diff-pill dp-Expert">Competitive</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strong Topics vs Weak Topics -->
+        <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+          <div class="section-card">
+            <div class="section-card-title" style="color:var(--success-text)">💪 Strong Topics (&ge; 75% Accuracy)</div>
+            <div id="lpStrongTopics" style="display:flex;gap:0.5rem;flex-wrap:wrap">
+              <span class="diff-pill dp-Easy">Arrays</span>
+              <span class="diff-pill dp-Easy">Strings</span>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-title" style="color:var(--danger-text)">🎯 Topics Needing Practice (&lt; 50% Accuracy)</div>
+            <div id="lpWeakTopics" style="display:flex;gap:0.5rem;flex-wrap:wrap">
+              <span class="diff-pill dp-Hard">Graphs</span>
+              <span class="diff-pill dp-Hard">Dynamic Programming</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Recommended Next Challenges -->
+        <div class="section-card">
+          <div class="section-card-title">🤖 Recommended Challenges for You</div>
+          <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:1.25rem">Targeted problem suggestions computed to strengthen your weakest concepts:</p>
+          <div class="problems-table-wrapper">
+            <table class="problems-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Recommended Problem</th>
+                  <th>Topic / Category</th>
+                  <th>Difficulty</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="lpRecommendedBody"><tr><td colspan="5" class="loading">Generating recommendations...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROBLEMS ── -->
+      <div class="page-section" id="section-problems">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Problem Bank</h2>
+          <p style="color:var(--text-muted);font-size:0.95rem">Search and filter standard Data Structures & Algorithms problem sets.</p>
+        </div>
+        
+        <div class="problems-filters" style="display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap">
+          <select class="filter-select" id="filter-diff" onchange="loadProblems()" style="max-width:180px">
+            <option value="">All Difficulties</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+            <option value="Expert">Expert</option>
+          </select>
+          <input class="filter-input" id="filter-search" placeholder="Search problems by name..." oninput="debounceSearch()" />
+        </div>
+
+        <div class="problems-table-wrapper">
+          <table class="problems-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Created By</th>
+                <th>Difficulty</th>
+                <th>Topics</th>
+                <th>AC Rate</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="problemsTableBody"><tr><td colspan="7" class="loading">Loading problems...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── SUBMISSIONS ── -->
+      <div class="page-section" id="section-submissions">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.75rem;margin-bottom:0.25rem">My Submissions</h2>
+          <p style="color:var(--text-muted);font-size:0.95rem">Track your complete history of submitted code, verdicts, runtimes, and timestamps.</p>
+        </div>
+        <div class="section-card">
+          <div class="sub-list" id="allSubmissions"><div class="loading">Loading submissions...</div></div>
+        </div>
+      </div>
+
+      <!-- ── CONTESTS ── -->
+      <div class="page-section" id="section-contests">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Contests</h2>
+          <p style="color:var(--text-muted);font-size:0.95rem">Join live and upcoming programming competitions.</p>
+        </div>
+        <div id="contestsList"><div class="loading">Loading contests...</div></div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script>
+    // ── Guard ──
+    if (!CA.isLoggedIn()) window.location.href = 'login.html';
+
+    const user = CA.getUser();
+    document.getElementById('userInitial').textContent = user?.name?.[0]?.toUpperCase() || '?';
+    document.getElementById('userName').textContent    = user?.name || 'Coder';
+    document.getElementById('userRole').textContent    = user?.role || 'student';
+    document.getElementById('greetName').textContent   = user?.name?.split(' ')[0] || 'Coder';
+
+    // ── Section Navigation ──
+    function showSection(name) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.side-nav-item').forEach(a => a.classList.remove('active'));
+      const targetSec = document.getElementById(`section-${name}`);
+      if (targetSec) targetSec.classList.add('active');
+      if (event?.currentTarget?.classList) event.currentTarget.classList.add('active');
+
+      if (name === 'overview')    { loadPracticeOverview(); loadFacultyAssignmentsOverview(); }
+      if (name === 'assignments') loadFacultyAssignments();
+      if (name === 'role-practice') loadRolePractice();
+      if (name === 'practice')      loadPracticeTracks();
+      if (name === 'learning-path') loadLearningPath();
+      if (name === 'problems')      loadProblems();
+      if (name === 'submissions')   loadAllSubmissions();
+      if (name === 'contests')      loadContests();
+    }
+
+    async function loadFacultyAssignmentsOverview() {
+      const el = document.getElementById('overviewAssignmentAlert');
+      if (!el) return;
+      try {
+        const res = await CA.Problems.getAssignments();
+        const assignments = res.assignments || [];
+        if (!assignments.length) { el.innerHTML = ''; return; }
+
+        const activeAss = assignments[0];
+        const probs = activeAss.problems || [];
+        const solved = probs.filter(p => p.is_solved).length;
+
+        el.innerHTML = `
+          <div style="background:linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%);border:1px solid #c7d2fe;border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;box-shadow:var(--shadow-sm)">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem">
+                <span style="font-size:1.1rem">📋</span>
+                <strong style="font-size:1.05rem;color:var(--text-main)">Faculty Assignment: ${esc(activeAss.title)}</strong>
+                <span class="diff-pill dp-Medium" style="font-size:0.75rem">Coursework</span>
+              </div>
+              <div style="color:var(--text-body);font-size:0.88rem">
+                Assigned by <strong>${esc(activeAss.faculty_name || 'Faculty')}</strong> &bull; Due: <strong>${new Date(activeAss.deadline).toLocaleDateString()}</strong> &bull; Progress: <strong>${solved}/${probs.length} Solved</strong>
+              </div>
+            </div>
+            <div>
+              <button onclick="showSection('assignments')" class="btn-primary btn-sm">
+                View Faculty Assignments →
+              </button>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error('Assignments overview error:', err);
+      }
+    }
+
+    async function loadFacultyAssignments() {
+      const el = document.getElementById('studentAssignmentsList');
+      if (!el) return;
+      el.innerHTML = '<div class="loading">Loading assigned tasks from faculty...</div>';
+      try {
+        const res = await CA.Problems.getAssignments();
+        const assignments = res.assignments || [];
+
+        if (!assignments.length) {
+          el.innerHTML = `
+            <div style="background:#ffffff;border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;text-align:center">
+              <div style="font-size:2.5rem;margin-bottom:0.75rem">📋</div>
+              <h3 style="margin:0 0 0.5rem 0;color:var(--text-main)">No Faculty Assignments Found</h3>
+              <p style="color:var(--text-muted);font-size:0.95rem;max-width:500px;margin:0 auto">You currently have no pending assignments or problem sets assigned by faculty.</p>
+            </div>`;
+          return;
+        }
+
+        el.innerHTML = assignments.map(a => {
+          const problems = a.problems || [];
+          const deadlineDate = new Date(a.deadline);
+          const isOverdue = new Date() > deadlineDate;
+          const totalCount = problems.length;
+          const solvedCount = problems.filter(p => p.is_solved).length;
+          const isFullyCompleted = totalCount > 0 && solvedCount === totalCount;
+
+          const probsHtml = problems.map(p => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1rem;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:0.6rem;flex-wrap:wrap;gap:0.5rem">
+              <div style="display:flex;align-items:center;gap:0.75rem">
+                ${p.is_solved 
+                  ? '<span style="color:#16a34a;font-weight:800;font-size:1.1rem" title="Solved ✓">✓</span>' 
+                  : '<span style="color:var(--text-light);font-size:1.1rem" title="Pending ⏳">⏳</span>'}
+                <div>
+                  <a href="problem-detail.html?id=${p.id}" class="prob-title-link" style="font-size:0.95rem">${esc(p.title)}</a>
+                  <div style="display:flex;gap:0.5rem;align-items:center;margin-top:0.2rem">
+                    <span class="diff-pill dp-${p.difficulty}">${p.difficulty}</span>
+                    <span style="font-size:0.78rem;color:var(--text-muted)">${CA.parseArray(p.topics).join(', ')}</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <a href="problem-detail.html?id=${p.id}" class="btn-${p.is_solved ? 'outline' : 'primary'} btn-sm">
+                  ${p.is_solved ? 'Review Solution' : 'Solve Problem →'}
+                </a>
+              </div>
+            </div>
+          `).join('');
+
+          return `
+            <div style="background:#ffffff;border:1px solid ${isFullyCompleted ? '#bbf7d0' : 'var(--border)'};border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--shadow-sm)">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.35rem">
+                    <h3 style="margin:0;font-size:1.2rem;color:var(--text-main)">${esc(a.title)}</h3>
+                    <span class="diff-pill dp-${isFullyCompleted ? 'Easy' : isOverdue ? 'Hard' : 'Medium'}" style="font-size:0.75rem">
+                      ${isFullyCompleted ? 'Completed ✅' : isOverdue ? 'Overdue ⚠️' : 'Active ⏳'}
+                    </span>
+                  </div>
+                  <div style="color:var(--text-muted);font-size:0.88rem;display:flex;gap:1rem;flex-wrap:wrap">
+                    <span>👨‍🏫 <strong>${esc(a.faculty_name || 'Faculty')}</strong> ${a.faculty_institution ? `(${esc(a.faculty_institution)})` : ''}</span>
+                    ${a.class_group ? `<span>🏫 Class: <strong>${esc(a.class_group)}</strong></span>` : ''}
+                    <span>📅 Due: <strong>${deadlineDate.toLocaleString()}</strong></span>
+                  </div>
+                  ${a.description ? `<p style="color:var(--text-body);font-size:0.9rem;margin-top:0.6rem;line-height:1.5">${esc(a.description)}</p>` : ''}
+                </div>
+
+                <div style="text-align:right">
+                  <div style="font-size:1.5rem;font-weight:800;color:${isFullyCompleted ? '#16a34a' : 'var(--primary)'}">${solvedCount} / ${totalCount}</div>
+                  <div style="color:var(--text-muted);font-size:0.78rem;font-weight:600">Problems Solved</div>
+                </div>
+              </div>
+
+              <div style="font-weight:700;font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.75rem">
+                Assigned Problem Set (${totalCount})
+              </div>
+              <div>${probsHtml || '<div style="color:var(--text-muted);font-size:0.85rem">No problems linked to this assignment.</div>'}</div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        el.innerHTML = `<div class="loading" style="color:#dc2626">Failed to load assignments: ${err.message}</div>`;
+      }
+    }
+
+    // ── ROLE-BASED PRACTICE & PERSONALIZED LEARNING LOGIC ──
+    const ALL_DSA_TOPICS = [
+      'Arrays', 'Strings', 'Linked Lists', 'Stacks', 'Queues', 
+      'Trees', 'Graphs', 'Recursion', 'Sorting', 'Dynamic Programming', 
+      'Matrix', 'Hash Map'
+    ];
+
+    let activeTargetRole = 'Software Developer';
+    let activeSelectedTopics = new Set(['Arrays', 'Strings', 'Linked Lists', 'Stacks', 'Queues', 'Trees', 'Graphs', 'Recursion', 'Sorting', 'Dynamic Programming']);
+    let allCareerRoles = [];
+
+    async function loadRolePractice() {
+      try {
+        const [rolesRes, prefRes] = await Promise.all([
+          CA.Practice.getRoles(),
+          CA.Practice.getRolePreference()
+        ]);
+
+        allCareerRoles = rolesRes.roles || [];
+        const pref = prefRes.preference || {};
+
+        activeTargetRole = pref.target_role || 'Software Developer';
+        document.getElementById('rolePrefLang').value = pref.preferred_language || 'cpp';
+        document.getElementById('rolePrefDiff').value = pref.preferred_difficulty || 'All';
+
+        const savedTopics = pref.selected_dsa_topics || [];
+        activeSelectedTopics = new Set(savedTopics.length ? savedTopics : ALL_DSA_TOPICS);
+
+        renderRoleCards(allCareerRoles, activeTargetRole);
+        renderTopicChips();
+        await refreshRoleRoadmap();
+      } catch (err) {
+        console.error('Role practice load error:', err);
+      }
+    }
+
+    function renderRoleCards(roles, currentRoleTitle) {
+      const grid = document.getElementById('roleCardsGrid');
+      grid.innerHTML = roles.map(r => {
+        const isActive = r.title.toLowerCase() === currentRoleTitle.toLowerCase();
+        return `
+          <div onclick="selectCareerRole('${esc(r.title)}')" style="background:${isActive ? 'var(--primary-light)' : '#ffffff'};border:2px solid ${isActive ? 'var(--primary)' : 'var(--border)'};border-radius:var(--radius-sm);padding:1.1rem;cursor:pointer;transition:all 0.2s ease;box-shadow:var(--shadow-sm)">
+            <div style="font-size:1.6rem;margin-bottom:0.4rem">${r.icon}</div>
+            <div style="font-weight:700;color:${isActive ? 'var(--primary)' : 'var(--text-main)'};font-size:1rem;margin-bottom:0.2rem">${esc(r.title)}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.3;margin-bottom:0.75rem">${esc(r.tagline)}</div>
+            <div style="display:flex;gap:0.35rem;flex-wrap:wrap">
+              ${(r.recommendedLanguages || []).map(l => `<span style="font-size:0.7rem;font-weight:600;padding:0.15rem 0.45rem;background:#ffffff;border:1px solid var(--border);border-radius:4px;color:var(--text-body);font-family:'JetBrains Mono',monospace">${l.toUpperCase()}</span>`).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectCareerRole(roleTitle) {
+      activeTargetRole = roleTitle;
+      const roleObj = allCareerRoles.find(r => r.title.toLowerCase() === roleTitle.toLowerCase());
+      if (roleObj && roleObj.defaultTopics) {
+        activeSelectedTopics = new Set(roleObj.defaultTopics);
+      }
+      renderRoleCards(allCareerRoles, activeTargetRole);
+      renderTopicChips();
+      await saveRolePreferenceAndReload();
+    }
+
+    function renderTopicChips() {
+      const container = document.getElementById('dsaTopicChips');
+      document.getElementById('roleTopicCountBadge').textContent = `${activeSelectedTopics.size} Topics Active`;
+
+      container.innerHTML = ALL_DSA_TOPICS.map(topic => {
+        const isSelected = activeSelectedTopics.has(topic);
+        return `
+          <div onclick="toggleDsaTopic('${esc(topic)}')" style="cursor:pointer;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.82rem;font-weight:600;transition:all 0.15s ease;display:inline-flex;align-items:center;gap:0.35rem;${isSelected ? 'background:var(--primary);color:#ffffff;border:1px solid var(--primary);' : 'background:var(--bg-subtle);color:var(--text-body);border:1px solid var(--border);'}">
+            <span>${isSelected ? '✓' : '+'}</span>
+            <span>${esc(topic)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function toggleDsaTopic(topic) {
+      if (activeSelectedTopics.has(topic)) {
+        if (activeSelectedTopics.size > 1) activeSelectedTopics.delete(topic);
+      } else {
+        activeSelectedTopics.add(topic);
+      }
+      renderTopicChips();
+      await saveRolePreferenceAndReload();
+    }
+
+    async function onRolePreferenceChanged() {
+      await saveRolePreferenceAndReload();
+    }
+
+    async function saveRolePreferenceAndReload() {
+      const prefLang = document.getElementById('rolePrefLang').value;
+      const prefDiff = document.getElementById('rolePrefDiff').value;
+
+      try {
+        await CA.Practice.setRolePreference({
+          targetRole: activeTargetRole,
+          preferredLanguage: prefLang,
+          preferredDifficulty: prefDiff,
+          selectedDsaTopics: Array.from(activeSelectedTopics)
+        });
+        await refreshRoleRoadmap();
+      } catch (err) {
+        console.error('Error saving role preference:', err);
+      }
+    }
+
+    async function refreshRoleRoadmap() {
+      const banner = document.getElementById('roleRoadmapBanner');
+      const tableBody = document.getElementById('roleQuestionsTableBody');
+
+      banner.innerHTML = '<div class="loading">Updating career roadmap...</div>';
+      tableBody.innerHTML = '<tr><td colspan="6" class="loading">Filtering questions...</td></tr>';
+
+      try {
+        const roadmapRes = await CA.Practice.getRoleRoadmap();
+        const role = roadmapRes.role || {};
+        const progress = roadmapRes.progress || {};
+        const problems = roadmapRes.recommendedProblems || [];
+        const practiceProgs = roadmapRes.recommendedPractice || [];
+
+        // Render Banner & Stages
+        const stagesHtml = (role.stages || []).map((st, idx) => {
+          const isCurrent = progress.currentStage?.level === st.level;
+          return `
+            <div style="flex:1;min-width:200px;background:#ffffff;border:1px solid ${isCurrent ? 'var(--primary)' : 'var(--border)'};border-radius:var(--radius-sm);padding:0.9rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem">
+                <span style="font-weight:700;font-size:0.85rem;color:${isCurrent ? 'var(--primary)' : 'var(--text-main)'}">${st.title}</span>
+                ${isCurrent ? '<span style="font-size:0.7rem;font-weight:700;background:var(--primary);color:#fff;padding:0.1rem 0.45rem;border-radius:10px">Active</span>' : ''}
+              </div>
+              <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.3">${esc(st.description)}</div>
+            </div>
+          `;
+        }).join('');
+
+        banner.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.5rem">
+                <span style="font-size:1.5rem">${role.icon || '🚀'}</span>
+                <h3 style="margin:0;font-size:1.25rem;color:var(--text-main)">Target Role: ${esc(role.title)}</h3>
+              </div>
+              <div style="color:var(--text-body);font-size:0.88rem;margin-top:0.25rem">${esc(role.description)}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:1.85rem;font-weight:800;color:var(--primary)">${progress.progressPercentage || 0}%</div>
+              <div style="color:var(--text-muted);font-size:0.8rem;font-weight:500">Roadmap Progress</div>
+            </div>
+          </div>
+
+          <div style="width:100%;height:8px;background:rgba(0,0,0,0.06);border-radius:4px;margin-bottom:1.25rem;overflow:hidden">
+            <div style="height:100%;width:${progress.progressPercentage || 0}%;background:var(--primary);border-radius:4px;transition:width 0.4s ease"></div>
+          </div>
+
+          <div style="display:flex;gap:0.85rem;flex-wrap:wrap">
+            ${stagesHtml}
+          </div>
+        `;
+
+        // Render Questions Feed
+        if (!problems.length && !practiceProgs.length) {
+          tableBody.innerHTML = '<tr><td colspan="6" class="loading">No questions found matching your topic and difficulty filter. Try selecting more topics or setting Difficulty to "All".</td></tr>';
+          return;
+        }
+
+        const combinedItems = [
+          ...problems.map(p => ({ ...p, type: 'problem' })),
+          ...practiceProgs.map(pr => ({ ...pr, type: 'practice' }))
+        ];
+
+        tableBody.innerHTML = combinedItems.map(item => {
+          const isProblem = item.type === 'problem';
+          const link = isProblem ? `problem-detail.html?id=${item.id}` : `problem-detail.html?practice_id=${item.id}`;
+          const topicsStr = isProblem
+            ? (Array.isArray(item.topics) ? item.topics.join(', ') : item.topics || '')
+            : `${item.language?.toUpperCase()} • ${item.category}`;
+
+          return `
+            <tr>
+              <td>
+                ${item.isSolved ? '<span style="color:var(--success-text);font-weight:700">✓ Solved</span>' : '<span style="color:var(--text-light)">Unsolved</span>'}
+              </td>
+              <td style="color:var(--text-muted);font-family:\'JetBrains Mono\',monospace">#${String(item.id).padStart(3,'0')}</td>
+              <td>
+                <a class="prob-title-link" href="${link}">${esc(item.title)}</a>
+                <span style="font-size:0.7rem;font-weight:600;padding:0.1rem 0.4rem;background:var(--bg-subtle);border-radius:4px;color:var(--text-muted);margin-left:0.4rem">
+                  ${isProblem ? 'DSA Problem' : 'Practice Exercise'}
+                </span>
+              </td>
+              <td style="color:var(--text-muted);font-size:0.85rem">${esc(topicsStr)}</td>
+              <td><span class="diff-pill dp-${item.difficulty}">${item.difficulty}</span></td>
+              <td>
+                <a href="${link}" class="${item.isSolved ? 'btn-outline' : 'btn-primary'} btn-sm">
+                  ${item.isSolved ? 'Review' : 'Solve →'}
+                </a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch (err) {
+        banner.innerHTML = `<div class="loading" style="color:#dc2626">Failed to generate roadmap: ${err.message}</div>`;
+        tableBody.innerHTML = `<tr><td colspan="6" class="loading" style="color:#dc2626">${err.message}</td></tr>`;
+      }
+    }
+
+
+    // ── Load Dashboard Stats ──
+    async function loadDashboard() {
+      try {
+        const [statsRes, actRes, subsRes] = await Promise.all([
+          CA.Users.getStats(user.id),
+          CA.Users.getActivity(user.id),
+          CA.Users.getSubmissions(user.id, 1),
+        ]);
+
+        const s = statsRes.stats || {};
+        document.getElementById('m-solved').textContent   = s.problems_solved   || 0;
+        document.getElementById('m-contests').textContent = s.contests_entered   || 0;
+        document.getElementById('m-rating').textContent   = s.rating             || 1200;
+        document.getElementById('m-streak').textContent   = s.streak             || 0;
+
+        // Heatmap
+        const heatmap = document.getElementById('dashHeatmap');
+        heatmap.innerHTML = '';
+        const actMap = {};
+        (actRes.activity || []).forEach(a => actMap[a.date] = a.count);
+        for (let i = 181; i >= 0; i--) {
+          const d = new Date(); d.setDate(d.getDate() - i);
+          const key = d.toISOString().slice(0, 10);
+          const count = actMap[key] || 0;
+          const cell = document.createElement('div');
+          cell.className = 'h-cell';
+          const intensity = Math.min(count / 8, 1);
+          cell.style.background = count === 0
+            ? '#e2e8f0'
+            : count > 3 ? '#4f46e5' : '#818cf8';
+          cell.title = `${key}: ${count} submission${count !== 1 ? 's' : ''}`;
+          heatmap.appendChild(cell);
+        }
+
+        // Recent submissions
+        const recEl = document.getElementById('recentSubmissions');
+        const subs  = (subsRes.submissions || []).slice(0, 5);
+        if (!subs.length) { recEl.innerHTML = '<div class="loading">No submissions yet.</div>'; }
+        else {
+          recEl.innerHTML = subs.map(s => `
+            <div class="sub-item">
+              <span class="verdict-badge v-${s.verdict}">${s.verdict}</span>
+              <span class="sub-name">${s.problem_title}</span>
+              <span class="sub-lang">${s.language}</span>
+              <span class="sub-time">${timeAgo(s.submitted_at)}</span>
+            </div>`).join('');
+        }
+
+        loadPracticeOverview();
+      } catch (err) {
+        console.error('Dashboard load error:', err.message);
+      }
+    }
+
+    // ── Language Practice Tracks ──
+    let currentPracticeLang = 'c';
+    let practiceSearchTimeout;
+
+    async function loadPracticeOverview() {
+      const el = document.getElementById('overviewPracticeTracks');
+      if (!el) return;
+      try {
+        const res = await CA.Practice.getLanguages();
+        const langs = res.languages || [];
+        el.innerHTML = langs.map(l => `
+          <div style="background:#ffffff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.1rem;cursor:pointer;box-shadow:var(--shadow-sm)" onclick="openPracticeLang('${l.language}')">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+              <div style="font-weight:700;color:var(--text-main);font-size:0.95rem">${l.title}</div>
+              <span style="font-size:0.8rem;font-weight:700;color:var(--primary)">${l.progress_percentage}%</span>
+            </div>
+            <div style="color:var(--text-muted);font-size:0.8rem;margin-bottom:0.75rem">${l.completed} / ${l.total_programs} completed</div>
+            <div style="width:100%;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${l.progress_percentage}%;background:var(--primary)"></div>
+            </div>
+          </div>
+        `).join('');
+      } catch {}
+    }
+
+    function openPracticeLang(lang) {
+      currentPracticeLang = lang;
+      showSection('practice');
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        if (b.textContent.toLowerCase().includes(lang === 'cpp' ? 'c++' : lang)) {
+          b.classList.add('active-lang');
+        } else {
+          b.classList.remove('active-lang');
+        }
+      });
+    }
+
+    function selectPracticeLang(lang, btn) {
+      currentPracticeLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active-lang'));
+      if (btn) btn.classList.add('active-lang');
+      loadPracticeTracks();
+    }
+
+    async function loadPracticeTracks() {
+      const titleMap = { c:'C Practice', cpp:'C++ Practice', java:'Java Practice', python:'Python Practice', javascript:'JavaScript Practice' };
+      document.getElementById('curLangTitle').textContent = titleMap[currentPracticeLang] || 'Practice';
+
+      try {
+        const sumRes = await CA.Practice.getLanguages();
+        const lInfo = (sumRes.languages || []).find(l => l.language === currentPracticeLang);
+        if (lInfo) {
+          document.getElementById('curLangStats').textContent = `${lInfo.completed} / ${lInfo.total_programs} Completed • ${lInfo.remaining} Remaining • Accuracy: ${lInfo.accuracy}% • Level: ${lInfo.current_level}`;
+          document.getElementById('curLangPct').textContent = `${lInfo.progress_percentage}%`;
+          document.getElementById('curLangBar').style.width = `${lInfo.progress_percentage}%`;
+        }
+
+        loadPracticePrograms();
+      } catch (err) {
+        console.error('Error loading practice summary:', err);
+      }
+    }
+
+    function debouncePracticeSearch() {
+      clearTimeout(practiceSearchTimeout);
+      practiceSearchTimeout = setTimeout(loadPracticePrograms, 350);
+    }
+
+    async function loadPracticePrograms() {
+      const tbody = document.getElementById('practiceTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading practice programs...</td></tr>';
+
+      try {
+        const cat  = document.getElementById('practice-cat').value;
+        const diff = document.getElementById('practice-diff').value;
+        const search = document.getElementById('practice-search').value;
+
+        const res = await CA.Practice.getPrograms(currentPracticeLang, { category: cat, difficulty: diff, search });
+        const progs = res.programs || [];
+
+        // Populate category dropdown
+        const catSel = document.getElementById('practice-cat');
+        if (catSel.children.length <= 1 && res.categories) {
+          catSel.innerHTML = '<option value="">All Categories</option>' + 
+            res.categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+        }
+
+        if (!progs.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="loading">No practice programs found for this criteria.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = progs.map((p, i) => `
+          <tr>
+            <td>
+              ${p.is_completed ? '<span style="color:var(--success-text);font-weight:700">✓ Solved</span>' : p.attempts > 0 ? '<span style="color:var(--warning-text);font-weight:600">⏳ Attempted</span>' : '<span style="color:var(--text-light)">Unattempted</span>'}
+            </td>
+            <td style="color:var(--text-muted);font-family:\'JetBrains Mono\',monospace">#${String(p.id).padStart(3,'0')}</td>
+            <td><a class="prob-title-link" href="problem-detail.html?practice_id=${p.id}">${esc(p.title)}</a></td>
+            <td style="color:var(--text-body);font-size:0.85rem">${esc(p.category)}</td>
+            <td><span class="diff-pill dp-${p.difficulty}">${p.difficulty}</span></td>
+            <td>
+              <a href="problem-detail.html?practice_id=${p.id}" class="btn-outline btn-sm">
+                ${p.is_completed ? 'Review' : 'Practice →'}
+              </a>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:#dc2626">${err.message}</td></tr>`;
+      }
+    }
+
+    // ── Personalized Learning Path ──
+    async function loadLearningPath() {
+      try {
+        const res = await CA.LearningPath.get();
+        const lp = res.learning_path || {};
+
+        document.getElementById('lpCurrentLevel').textContent = lp.current_level || 'Beginner';
+
+        // Strong topics
+        const strongEl = document.getElementById('lpStrongTopics');
+        const strong = lp.strong_topics || [];
+        strongEl.innerHTML = strong.length ? strong.map(t => `<span class="diff-pill dp-Easy" style="padding:0.4rem 0.8rem">✓ ${esc(t)}</span>`).join('') : '<span style="color:var(--text-muted)">Solve more problems to identify strong topics</span>';
+
+        // Weak topics
+        const weakEl = document.getElementById('lpWeakTopics');
+        const weak = lp.weak_topics || [];
+        weakEl.innerHTML = weak.length ? weak.map(t => `<span class="diff-pill dp-Hard" style="padding:0.4rem 0.8rem">🎯 ${esc(t)}</span>`).join('') : '<span style="color:var(--text-muted)">Great job! No struggling topics detected</span>';
+
+        // Recommended programs
+        const recBody = document.getElementById('lpRecommendedBody');
+        const recs = lp.recommended_practice || [];
+        if (!recs.length) {
+          recBody.innerHTML = '<tr><td colspan="5" class="loading">No pending recommendations. You are all caught up!</td></tr>';
+          return;
+        }
+
+        recBody.innerHTML = recs.map(p => `
+          <tr>
+            <td style="color:var(--text-muted);font-family:\'JetBrains Mono\',monospace">#${p.id}</td>
+            <td><a class="prob-title-link" href="problem-detail.html?practice_id=${p.id}">${esc(p.title)}</a></td>
+            <td style="color:var(--text-body);font-size:0.85rem">${p.language?.toUpperCase()} &bull; ${esc(p.category)}</td>
+            <td><span class="diff-pill dp-${p.difficulty}">${p.difficulty}</span></td>
+            <td>
+              <a href="problem-detail.html?practice_id=${p.id}" class="btn-primary btn-sm">
+                Solve Now →
+              </a>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('Learning path load error:', err);
+      }
+    }
+
+    function esc(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── Problems ──
+    let searchTimeout;
+    function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(loadProblems, 400); }
+
+    async function loadProblems() {
+      const tbody = document.getElementById('problemsTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading problems...</td></tr>';
+      try {
+        const diff   = document.getElementById('filter-diff').value;
+        const search = document.getElementById('filter-search').value;
+        const res    = await CA.Problems.list({ difficulty: diff, search });
+        const probs  = res.problems || [];
+        if (!probs.length) { tbody.innerHTML = '<tr><td colspan="7" class="loading">No problems found.</td></tr>'; return; }
+        tbody.innerHTML = probs.map((p, i) => `
+          <tr>
+            <td style="color:var(--text-muted);font-family:'JetBrains Mono',monospace">#${String(p.id).padStart(3,'0')}</td>
+            <td><a class="prob-title-link" href="problem-detail.html?id=${p.id}">${p.title}</a></td>
+            <td><span style="font-weight:600;font-size:0.85rem;color:var(--primary)">👨‍🏫 ${p.author_name || 'Faculty'}</span></td>
+            <td><span class="diff-pill dp-${p.difficulty}">${p.difficulty}</span></td>
+            <td style="color:var(--text-muted);font-size:0.85rem">${CA.parseArray(p.topics).join(', ')}</td>
+            <td style="font-weight:600;font-size:0.85rem">${p.ac_rate}%</td>
+            <td><a href="problem-detail.html?id=${p.id}" class="btn-primary btn-sm">Solve →</a></td>
+          </tr>`).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="loading" style="color:#dc2626">${err.message}</td></tr>`;
+      }
+    }
+
+    // ── All Submissions ──
+    async function loadAllSubmissions() {
+      const el = document.getElementById('allSubmissions');
+      el.innerHTML = '<div class="loading">Loading submissions...</div>';
+      try {
+        const res  = await CA.Users.getSubmissions(user.id);
+        const subs = res.submissions || [];
+        if (!subs.length) { el.innerHTML = '<div class="loading">No submissions yet. Start solving!</div>'; return; }
+        el.innerHTML = subs.map(s => `
+          <div class="sub-item">
+            <span class="verdict-badge v-${s.verdict}">${s.verdict}</span>
+            <span class="sub-name">${s.problem_title}</span>
+            <span class="sub-lang">${s.language}</span>
+            <span class="sub-time">${timeAgo(s.submitted_at)}</span>
+          </div>`).join('');
+      } catch (err) { el.innerHTML = `<div class="loading" style="color:#dc2626">${err.message}</div>`; }
+    }
+
+    // ── Contests ──
+    async function loadContests() {
+      const el = document.getElementById('contestsList');
+      el.innerHTML = '<div class="loading">Loading contests...</div>';
+      try {
+        const res      = await CA.Contests.list();
+        const contests = res.contests || [];
+        if (!contests.length) { el.innerHTML = '<div class="loading">No contests available right now.</div>'; return; }
+        el.innerHTML = contests.map(c => `
+          <div class="section-card" style="margin-bottom:1.25rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
+              <h3 style="color:var(--text-main);margin:0">${c.title}</h3>
+              <span class="diff-pill ${c.status==='live'?'dp-Easy':c.status==='upcoming'?'dp-Medium':'dp-Hard'}">
+                ${c.status.toUpperCase()}
+              </span>
+            </div>
+            <div style="color:var(--text-muted);font-size:0.88rem;margin-bottom:0.75rem">
+              ${c.type} &bull; ${c.problem_count || 0} problems &bull; ${c.participant_count || 0} participants registered
+            </div>
+            <div style="color:var(--text-body);font-size:0.82rem;margin-bottom:1rem">
+              ${new Date(c.start_time).toLocaleString()} &rarr; ${new Date(c.end_time).toLocaleString()}
+            </div>
+            ${c.status !== 'ended' ? `<button onclick="joinContest(${c.id}, this)" class="btn-primary btn-sm">Join Contest</button>` : '<span style="color:var(--text-muted);font-size:0.85rem">Contest ended</span>'}
+          </div>`).join('');
+      } catch (err) { el.innerHTML = `<div class="loading" style="color:#dc2626">${err.message}</div>`; }
+    }
+
+    async function joinContest(id, btn) {
+      btn.disabled = true; btn.textContent = 'Joining...';
+      try {
+        await CA.Contests.join(id);
+        btn.textContent = '✓ Joined!';
+        btn.classList.replace('btn-primary', 'btn-success');
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = err.message.includes('already') ? '✓ Already Joined' : 'Join Contest';
+      }
+    }
+
+    // ── Helpers ──
+    function timeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr);
+      const m = Math.floor(diff / 60000);
+      if (m < 1)  return 'just now';
+      if (m < 60) return `${m}m ago`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h}h ago`;
+      return `${Math.floor(h/24)}d ago`;
+    }
+
+    // ── Init ──
+    loadDashboard();
+  </script>
+</body>
+</html>

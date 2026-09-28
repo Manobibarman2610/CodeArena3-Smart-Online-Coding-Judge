@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faculty Portal — CodeArena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background-color: var(--bg-page); min-height: 100vh; color: var(--text-body); }
+    
+    .topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text-main);
+    }
+    
+    .user-chip { display: flex; align-items: center; gap: 0.85rem; }
+    .user-av {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.95rem;
+    }
+    
+    .layout { display: flex; min-height: calc(100vh - 65px); }
+    .sidebar {
+      width: 250px; flex-shrink: 0;
+      background: #ffffff;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+    }
+    
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.7rem 1rem; border-radius: var(--radius-sm);
+      color: var(--text-body); font-weight: 500; font-size: 0.9rem;
+      text-decoration: none; margin-bottom: 0.35rem;
+      transition: var(--transition-fast);
+      cursor: pointer;
+    }
+    .nav-item:hover { background: var(--bg-page); color: var(--text-main); }
+    .nav-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .main { flex: 1; padding: 2rem 2.5rem; overflow-y: auto; background: var(--bg-page); }
+    .page { display: none; }
+    .page.active { display: block; }
+    
+    .stat-c {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-v { font-size: 1.85rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
+    .stat-l { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.35rem; font-weight: 500; }
+    
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem; }
+
+    .sim-high { color: var(--danger-text); font-weight: 700; }
+    .sim-mid  { color: var(--warning-text); font-weight: 600; }
+    .flag-card {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .problems-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .problems-table th { background: var(--bg-subtle); padding: 0.85rem 1.25rem; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .problems-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.92rem; color: var(--text-body); }
+    .problems-table tr:hover td { background: var(--bg-subtle); }
+    .problems-table-wrapper { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+    .report-tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .report-tab { border:1px solid var(--border); background:#fff; color:var(--text-body); padding:.55rem .9rem; border-radius:var(--radius-sm); cursor:pointer; font-weight:600; }
+    .report-tab.active { background:var(--primary-light); border-color:var(--primary-border); color:var(--primary); }
+    .report-detail-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.85rem; margin:1rem 0; }
+    .report-metric { border:1px solid var(--border); border-radius:var(--radius-sm); padding:.9rem; background:#fff; }
+    .report-metric strong { display:block; font-size:1.35rem; color:var(--text-main); }
+    .form-input, .form-select, .form-textarea { background: #ffffff; border: 1px solid var(--border); color: var(--text-main); padding: 0.65rem 0.95rem; border-radius: var(--radius-sm); outline: none; width: 100%; box-sizing: border-box; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <a href="../index.html" class="brand">
+    <div class="logo-icon-box" style="width:30px;height:30px;font-size:0.85rem">&lt;/&gt;</div>
+    <span>CodeArena</span>
+    <span style="font-size:0.75rem;font-weight:700;color:var(--primary);background:var(--primary-light);padding:0.2rem 0.5rem;border-radius:4px;margin-left:0.5rem">FACULTY</span>
+  </a>
+  <div class="user-chip">
+    <div class="user-av" id="uiAv">F</div>
+    <div>
+      <div style="color:var(--text-main);font-weight:600;font-size:0.92rem" id="uiName">Faculty</div>
+      <div style="color:var(--text-muted);font-size:0.78rem" id="uiRole">faculty</div>
+    </div>
+    <button class="btn-danger btn-sm" onclick="CA.Auth.logout()" style="margin-left:0.5rem">Logout</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-light);letter-spacing:0.06em;margin-bottom:0.75rem;padding-left:0.5rem">Faculty Tools</div>
+    <a class="nav-item active" onclick="show('overview')"     href="#">📊 Overview</a>
+    <a class="nav-item"        onclick="show('students')"     href="#">👥 Students</a>
+    <a class="nav-item"        onclick="show('reports')"      href="#">📑 Student Reports</a>
+    <a class="nav-item"        onclick="show('problems')"     href="#">✏️ Problem Creator</a>
+    <a class="nav-item"        onclick="show('contests')"     href="#">🏟️ Contests</a>
+    <a class="nav-item"        onclick="show('assignments')"  href="#">📋 Assignments</a>
+    <a class="nav-item"        onclick="show('plagiarism')"   href="#">🔍 Plagiarism Check</a>
+    <a class="nav-item"        onclick="show('analytics')"    href="#">📈 Analytics</a>
+  </aside>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main">
+    <!-- ── OVERVIEW ── -->
+    <div class="page active" id="p-overview">
+      <div style="margin-bottom:1.75rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Faculty Dashboard Overview</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">Monitor student engagement, assignments, and curriculum delivery.</p>
+      </div>
+
+      <div class="grid-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;margin-bottom:1.5rem">
+        <div class="stat-c"><div class="stat-v" id="st-students">--</div><div class="stat-l">Enrolled Students</div></div>
+        <div class="stat-c"><div class="stat-v" id="st-probs">--</div><div class="stat-l">Total Problems in Bank</div></div>
+        <div class="stat-c"><div class="stat-v" id="st-contests">--</div><div class="stat-l">Active Contests</div></div>
+        <div class="stat-c"><div class="stat-v" id="st-assign">--</div><div class="stat-l">Course Assignments</div></div>
+      </div>
+
+      <div class="card">
+        <div class="section-card-title">Quick Actions</div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button class="btn-primary" onclick="show('problems')">+ Create Problem</button>
+          <button class="btn-secondary" onclick="show('contests')">+ Create Contest</button>
+          <button class="btn-secondary" onclick="show('assignments')">+ Create Assignment</button>
+          <button class="btn-outline" onclick="show('plagiarism')">Run Plagiarism Check</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS ── -->
+    <div class="page" id="p-students">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Student Monitoring & Rosters</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">View individual student solve rates, ratings, and performance reports.</p>
+      </div>
+      <div class="problems-table-wrapper">
+        <div id="studentsTable"><div class="loading">Loading students...</div></div>
+      </div>
+    </div>
+
+    <!-- ── STUDENT REPORTS ── -->
+    <div class="page" id="p-reports">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Student Performance Reports</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">Names, roll numbers, and coding performance in one report table.</p>
+      </div>
+      <div class="report-tabs" role="tablist" aria-label="Student report views">
+        <button class="report-tab active" id="reportTabAll" onclick="setReportView('all')" role="tab" aria-selected="true">All students</button>
+        <button class="report-tab" id="reportTabPerformance" onclick="setReportView('performance')" role="tab" aria-selected="false">Performance</button>
+      </div>
+      <div class="problems-table-wrapper"><div id="studentReportsTable"><div class="loading">Loading student reports...</div></div></div>
+      <div class="card" id="studentReportDetails" style="display:none;margin-top:1.25rem"></div>
+    </div>
+
+    <!-- ── CREATE PROBLEM ── -->
+    <div class="page" id="p-problems">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Problem & Exercise Creator</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">Add new DSA problems to the central problem bank or publish to a dedicated language practice track.</p>
+      </div>
+
+      <div class="card">
+        <form id="probForm">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Problem Title</label>
+              <input class="form-input" id="p-title" placeholder="e.g. Find Inorder Successor" required />
+            </div>
+            <div class="form-grp">
+              <label>Destination Track</label>
+              <select class="form-select" id="p-track">
+                <option value="standard">Standard Problem Bank</option>
+                <option value="c">C Practice Track</option>
+                <option value="cpp">C++ Practice Track</option>
+                <option value="java">Java Practice Track</option>
+                <option value="python">Python Practice Track</option>
+                <option value="javascript">JavaScript Practice Track</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Difficulty</label>
+              <select class="form-select" id="p-diff">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+                <option value="Expert">Expert</option>
+              </select>
+            </div>
+            <div class="form-grp">
+              <label>Category / Topics (comma-separated)</label>
+              <input class="form-input" id="p-topics" placeholder="Binary Trees, Recursion" />
+            </div>
+          </div>
+
+          <div class="form-grp">
+            <label>Description (Markdown)</label>
+            <textarea class="form-textarea" id="p-desc" style="min-height:120px" placeholder="## Problem Statement&#10;&#10;Given a binary search tree..."></textarea>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Sample Input</label>
+              <textarea class="form-textarea" id="p-sin" placeholder="3&#10;10 20 30"></textarea>
+            </div>
+            <div class="form-grp">
+              <label>Sample Output</label>
+              <textarea class="form-textarea" id="p-sout" placeholder="20"></textarea>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Time Limit (ms)</label>
+              <input class="form-input" id="p-time" type="number" value="2000" />
+            </div>
+            <div class="form-grp">
+              <label>Memory Limit (MB)</label>
+              <input class="form-input" id="p-mem" type="number" value="256" />
+            </div>
+          </div>
+
+          <div class="form-grp">
+            <label>Constraints</label>
+            <textarea class="form-textarea" id="p-constraints" style="min-height:60px" placeholder="1 &le; n &le; 10^5"></textarea>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:1rem">
+            <button type="submit" class="btn-primary">Create Problem</button>
+            <span id="prob-msg" style="font-size:0.9rem;font-weight:600"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── CREATE CONTEST ── -->
+    <div class="page" id="p-contests">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Contest Manager</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">Schedule timed coding contests for your classroom or batch.</p>
+      </div>
+
+      <div class="card">
+        <form id="contestForm">
+          <div class="form-grp">
+            <label>Contest Title</label>
+            <input class="form-input" id="c-title" placeholder="e.g. Midterm Coding Sprint #3" required />
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Type</label>
+              <select class="form-select" id="c-type">
+                <option value="Sprint">Sprint (1 Hour)</option>
+                <option value="Grand Arena">Grand Arena (3 Hours)</option>
+                <option value="Campus League">Campus League</option>
+              </select>
+            </div>
+            <div class="form-grp">
+              <label>Visibility</label>
+              <select class="form-select" id="c-public">
+                <option value="1">Public (All Students)</option>
+                <option value="0">Private (Classroom Only)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Start Date & Time</label>
+              <input class="form-input" id="c-start" type="datetime-local" required />
+            </div>
+            <div class="form-grp">
+              <label>End Date & Time</label>
+              <input class="form-input" id="c-end" type="datetime-local" required />
+            </div>
+          </div>
+
+          <div class="form-grp">
+            <label>Description</label>
+            <textarea class="form-textarea" id="c-desc" placeholder="Contest rules and guidelines..."></textarea>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:1rem">
+            <button type="submit" class="btn-primary">Schedule Contest</button>
+            <span id="contest-msg" style="font-size:0.9rem;font-weight:600"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── ASSIGNMENTS ── -->
+    <div class="page" id="p-assignments">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Coursework Assignments</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">Assign specific problem IDs to student batches with hard deadlines.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="section-card-title">Create New Assignment</div>
+        <form id="assignForm">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Assignment Title</label>
+              <input class="form-input" id="a-title" placeholder="Assignment 4: Binary Trees & Graphs" required />
+            </div>
+            <div class="form-grp">
+              <label>Class Group / Batch</label>
+              <input class="form-input" id="a-class" placeholder="CS-2026-Batch-A" />
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="form-grp">
+              <label>Problem IDs (comma-separated)</label>
+              <input class="form-input" id="a-probs" placeholder="1, 2, 4, 5" required />
+            </div>
+            <div class="form-grp">
+              <label>Deadline</label>
+              <input class="form-input" id="a-deadline" type="datetime-local" required />
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:1rem">
+            <button type="submit" class="btn-primary">Create Assignment</button>
+            <span id="assign-msg" style="font-size:0.9rem;font-weight:600"></span>
+          </div>
+        </form>
+      </div>
+
+      <div class="problems-table-wrapper">
+        <div id="assignmentsList"><div class="loading">Loading assignments...</div></div>
+      </div>
+    </div>
+
+    <!-- ── PLAGIARISM ── -->
+    <div class="page" id="p-plagiarism">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Code Plagiarism Detection</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">Compare submitted solutions using tokenized trigram Jaccard similarity across contest submissions.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+          <input class="form-input" id="plagContestId" placeholder="Enter Contest ID (0 for all submissions)" value="0" style="max-width:280px" />
+          <button class="btn-primary" onclick="runPlagiarism()">Run Similarity Analysis</button>
+        </div>
+      </div>
+
+      <div id="plagiarismResults"></div>
+    </div>
+
+    <!-- ── ANALYTICS ── -->
+    <div class="page" id="p-analytics">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-size:1.75rem;margin-bottom:0.25rem">Classroom Analytics Dashboard</h2>
+        <p style="color:var(--text-muted);font-size:0.95rem">Problem solve distributions and daily submission activity.</p>
+      </div>
+      <div id="analyticsContent"><div class="loading">Loading analytics...</div></div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+  // Faculty and administrators can use platform management tools.
+  if (!CA.isLoggedIn()) window.location.href = 'login.html';
+  const user = CA.getUser();
+  if (!['faculty','admin'].includes(user?.role)) window.location.href = 'dashboard-student.html';
+
+  if (user?.role === 'admin') {
+    document.title = 'Platform Management — CodeArena';
+    document.querySelector('.brand span:last-child').textContent = 'ADMIN TOOLS';
+  }
+
+  document.getElementById('uiAv').textContent   = user.name?.[0]?.toUpperCase() || 'F';
+  document.getElementById('uiName').textContent = user.name;
+  document.getElementById('uiRole').textContent = user.role;
+
+  function show(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(a => a.classList.toggle('active', a.getAttribute('onclick') === `show('${name}')`));
+    const target = document.getElementById(`p-${name}`);
+    if (target) target.classList.add('active');
+
+    if (name === 'students')    loadStudents();
+    if (name === 'reports')    loadStudentReports();
+    if (name === 'assignments') loadAssignments();
+    if (name === 'analytics')   loadAnalytics();
+    if (name === 'overview')    loadOverview();
+  }
+
+  async function loadOverview() {
+    try {
+      const res = await CA.Faculty.getOverview();
+      const s = res.stats || {};
+      document.getElementById('st-students').textContent = s.total_students || 0;
+      document.getElementById('st-probs').textContent    = s.total_problems || 0;
+      document.getElementById('st-contests').textContent = s.total_contests || 0;
+      document.getElementById('st-assign').textContent   = s.total_assignments || 0;
+    } catch {
+      try {
+        const [stuRes, assignRes] = await Promise.all([CA.Faculty.getStudents(), CA.Faculty.getAssignments()]);
+        document.getElementById('st-students').textContent = stuRes.students?.length || 0;
+        document.getElementById('st-assign').textContent   = assignRes.assignments?.length || 0;
+      } catch {}
+    }
+  }
+
+  async function loadStudents() {
+    const el = document.getElementById('studentsTable');
+    el.innerHTML = '<div class="loading">Loading students...</div>';
+    try {
+      const res = await CA.Faculty.getStudents();
+      const stus = res.students || [];
+      if (!stus.length) { el.innerHTML = '<div class="loading">No registered students found.</div>'; return; }
+      el.innerHTML = `
+      <table class="problems-table">
+        <thead><tr><th>#</th><th>Student Name</th><th>Email</th><th>Rating</th><th>Streak</th><th>Solved</th><th>Contests</th><th>Action</th></tr></thead>
+        <tbody>${stus.map((s,i) => `
+        <tr>
+          <td style="color:var(--text-muted)">#${String(s.id).padStart(3,'0')}</td>
+          <td><strong>${escapeHtml(s.name)}</strong></td>
+          <td style="color:var(--text-muted)">${s.email}</td>
+          <td><span class="diff-pill dp-Medium">${s.rating}</span></td>
+          <td>🔥 ${s.streak}d</td>
+          <td>${s.problems_solved || 0}</td>
+          <td>${s.contests_entered || 0}</td>
+          <td><button class="btn-outline btn-sm" onclick="openStudentReport(${Number(s.id)})">View Report</button></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    } catch (err) { el.innerHTML = `<div class="loading" style="color:#dc2626">${err.message}</div>`; }
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
+  }
+
+  let studentReportRows = [];
+  let studentReportView = 'all';
+
+  async function loadStudentReports() {
+    const el = document.getElementById('studentReportsTable');
+    el.innerHTML = '<div class="loading">Loading student reports...</div>';
+    try {
+      const res = await CA.Faculty.getStudents();
+      studentReportRows = res.students || [];
+      renderStudentReports();
+    } catch (err) {
+      el.innerHTML = `<div class="loading" style="color:#dc2626">${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  function setReportView(view) {
+    studentReportView = view === 'performance' ? 'performance' : 'all';
+    document.getElementById('reportTabAll').classList.toggle('active', studentReportView === 'all');
+    document.getElementById('reportTabPerformance').classList.toggle('active', studentReportView === 'performance');
+    document.getElementById('reportTabAll').setAttribute('aria-selected', String(studentReportView === 'all'));
+    document.getElementById('reportTabPerformance').setAttribute('aria-selected', String(studentReportView === 'performance'));
+    renderStudentReports();
+  }
+
+  function renderStudentReports() {
+    const el = document.getElementById('studentReportsTable');
+    if (!studentReportRows.length) {
+      el.innerHTML = '<div class="loading">No registered students found.</div>';
+      return;
+    }
+    const isPerformance = studentReportView === 'performance';
+    const header = isPerformance
+      ? '<th>Problems Solved</th><th>Submissions</th><th>Accepted</th><th>Accuracy</th><th>Rating</th>'
+      : '<th>Email</th><th>Institution</th><th>Rating</th><th>Streak</th>';
+    const rows = studentReportRows.map(student => `
+      <tr>
+        <td><strong>${escapeHtml(student.name)}</strong></td>
+        <td>CA-${String(student.roll_no || student.id).padStart(5, '0')}</td>
+        ${isPerformance
+          ? `<td>${Number(student.problems_solved) || 0}</td><td>${Number(student.total_submissions) || 0}</td><td>${Number(student.accepted_submissions) || 0}</td><td><span class="diff-pill dp-${Number(student.accuracy) >= 70 ? 'Easy' : Number(student.accuracy) >= 40 ? 'Medium' : 'Hard'}">${Number(student.accuracy) || 0}%</span></td><td>${Number(student.rating) || 0}</td>`
+          : `<td>${escapeHtml(student.email)}</td><td>${escapeHtml(student.institution || '—')}</td><td>${Number(student.rating) || 0}</td><td>${Number(student.streak) || 0}d</td>`}
+        <td><button class="btn-outline btn-sm" onclick="openStudentReport(${Number(student.id)})">View details</button></td>
+      </tr>`).join('');
+    el.innerHTML = `<table class="problems-table"><thead><tr><th>Student Name</th><th>Roll No.</th>${header}<th>Report</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  async function openStudentReport(id) {
+    show('reports');
+    const panel = document.getElementById('studentReportDetails');
+    panel.style.display = 'block';
+    panel.innerHTML = '<div class="loading">Loading detailed report...</div>';
+    try {
+      const { report } = await CA.Faculty.getStudentReport(id);
+      const name = escapeHtml(report.name);
+      const rollNo = `CA-${String(report.roll_no || report.id).padStart(5, '0')}`;
+      const recent = (report.recent_submissions || []).slice(0, 5).map(row =>
+        `<tr><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.difficulty)}</td><td>${escapeHtml(row.verdict)}</td><td>${escapeHtml(row.submitted_at || '')}</td></tr>`
+      ).join('');
+      panel.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap"><div><h3 style="margin:0 0 .25rem">${name}</h3><span style="color:var(--text-muted)">Roll No. ${rollNo}</span></div><button class="btn-outline btn-sm" onclick="document.getElementById('studentReportDetails').style.display='none'">Close</button></div>
+        <div class="report-detail-grid">
+          <div class="report-metric"><strong>${Number(report.problems_solved) || 0}</strong>Problems solved</div>
+          <div class="report-metric"><strong>${Number(report.total_submissions) || 0}</strong>Total submissions</div>
+          <div class="report-metric"><strong>${Number(report.accuracy) || 0}%</strong>Acceptance rate</div>
+          <div class="report-metric"><strong>${Number(report.rating) || 0}</strong>Rating</div>
+          <div class="report-metric"><strong>${Number(report.contests_entered) || 0}</strong>Contests entered</div>
+          <div class="report-metric"><strong>${Number(report.streak) || 0}d</strong>Current streak</div>
+        </div>
+        <h4>Recent submissions</h4>
+        ${recent ? `<div style="overflow:auto"><table class="problems-table"><thead><tr><th>Question</th><th>Difficulty</th><th>Result</th><th>Submitted</th></tr></thead><tbody>${recent}</tbody></table></div>` : '<p style="color:var(--text-muted)">No submissions yet.</p>'}`;
+    } catch (err) {
+      panel.innerHTML = `<div style="color:#dc2626">${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  // ── Problem Creation ──
+  document.getElementById('probForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.submitter; btn.disabled = true; btn.textContent = 'Creating...';
+    const topics = document.getElementById('p-topics').value.split(',').map(t => t.trim()).filter(Boolean);
+    const track = document.getElementById('p-track').value;
+
+    try {
+      if (track !== 'standard') {
+        await CA.Practice.createProgram({
+          title:           document.getElementById('p-title').value,
+          language:        track,
+          category:        topics[0] || 'Basic Programs',
+          difficulty:      document.getElementById('p-diff').value,
+          description:     document.getElementById('p-desc').value,
+          sample_input:    document.getElementById('p-sin').value,
+          sample_output:   document.getElementById('p-sout').value,
+          constraints:     document.getElementById('p-constraints').value,
+          time_limit_ms:   +document.getElementById('p-time').value,
+          memory_limit_mb: +document.getElementById('p-mem').value,
+          test_cases: [{
+            input: document.getElementById('p-sin').value,
+            output: document.getElementById('p-sout').value
+          }]
+        });
+        document.getElementById('prob-msg').textContent = `✅ Published to ${track.toUpperCase()} Practice Track!`;
+      } else {
+        await CA.Problems.create({
+          title:           document.getElementById('p-title').value,
+          difficulty:      document.getElementById('p-diff').value,
+          description:     document.getElementById('p-desc').value,
+          sample_input:    document.getElementById('p-sin').value,
+          sample_output:   document.getElementById('p-sout').value,
+          constraints:     document.getElementById('p-constraints').value,
+          time_limit_ms:   +document.getElementById('p-time').value,
+          memory_limit_mb: +document.getElementById('p-mem').value,
+          topics,
+          test_cases: [{
+            input: document.getElementById('p-sin').value,
+            output: document.getElementById('p-sout').value,
+            is_sample: true
+          }]
+        });
+        document.getElementById('prob-msg').textContent = '✅ Problem created in Problem Bank!';
+      }
+      document.getElementById('prob-msg').style.color = 'var(--success-text)';
+      e.target.reset();
+    } catch (err) {
+      document.getElementById('prob-msg').textContent = '❌ ' + err.message;
+      document.getElementById('prob-msg').style.color = 'var(--danger-text)';
+    }
+    btn.disabled = false; btn.textContent = 'Create Problem';
+  });
+
+  // ── Contest Creation ──
+  document.getElementById('contestForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.submitter; btn.disabled = true; btn.textContent = 'Scheduling...';
+    try {
+      await CA.Contests.create({
+        title:       document.getElementById('c-title').value,
+        type:        document.getElementById('c-type').value,
+        is_public:   document.getElementById('c-public').value === '1',
+        start_time:  document.getElementById('c-start').value,
+        end_time:    document.getElementById('c-end').value,
+        description: document.getElementById('c-desc').value,
+      });
+      document.getElementById('contest-msg').textContent = '✅ Contest scheduled!';
+      document.getElementById('contest-msg').style.color = 'var(--success-text)';
+      e.target.reset();
+    } catch (err) {
+      document.getElementById('contest-msg').textContent = '❌ ' + err.message;
+      document.getElementById('contest-msg').style.color = 'var(--danger-text)';
+    }
+    btn.disabled = false; btn.textContent = 'Schedule Contest';
+  });
+
+  // ── Assignment Creation ──
+  document.getElementById('assignForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.submitter; btn.disabled = true; btn.textContent = 'Creating...';
+    const pids = document.getElementById('a-probs').value.split(',').map(s=>+s.trim()).filter(Boolean);
+    try {
+      await CA.Faculty.createAssignment({
+        title:       document.getElementById('a-title').value,
+        class_group: document.getElementById('a-class').value,
+        problem_ids: pids,
+        deadline:    document.getElementById('a-deadline').value,
+      });
+      document.getElementById('assign-msg').textContent = '✅ Assignment created!';
+      document.getElementById('assign-msg').style.color = 'var(--success-text)';
+      e.target.reset();
+      loadAssignments();
+    } catch (err) {
+      document.getElementById('assign-msg').textContent = '❌ ' + err.message;
+      document.getElementById('assign-msg').style.color = 'var(--danger-text)';
+    }
+    btn.disabled = false; btn.textContent = 'Create Assignment';
+  });
+
+  async function loadAssignments() {
+    const el = document.getElementById('assignmentsList');
+    el.innerHTML = '<div class="loading">Loading assignments...</div>';
+    try {
+      const res = await CA.Faculty.getAssignments();
+      const list = res.assignments || [];
+      if (!list.length) { el.innerHTML = '<div class="loading">No assignments created yet.</div>'; return; }
+      el.innerHTML = `
+      <table class="problems-table">
+        <thead><tr><th>Title</th><th>Class Group</th><th>Problems</th><th>Deadline</th></tr></thead>
+        <tbody>${list.map(a => `
+        <tr>
+          <td><strong>${a.title}</strong></td>
+          <td><span class="diff-pill dp-Easy">${a.class_group || 'General'}</span></td>
+          <td>${CA.parseArray(a.problem_ids).join(', ')}</td>
+          <td style="color:var(--text-muted)">${new Date(a.deadline).toLocaleString()}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    } catch (err) { el.innerHTML = `<div class="loading" style="color:#dc2626">${err.message}</div>`; }
+  }
+
+  // ── Plagiarism ──
+  async function runPlagiarism() {
+    const cid = document.getElementById('plagContestId').value || 0;
+    const el  = document.getElementById('plagiarismResults');
+    el.innerHTML = '<div class="loading">Analyzing submission code similarities...</div>';
+    try {
+      const res = await CA.Faculty.plagiarismReport(cid);
+      const flagged = res.flagged_pairs || [];
+      if (!flagged.length) {
+        el.innerHTML = `<div class="card" style="text-align:center;color:var(--success-text)">✓ Checked ${res.total_checked} submissions. No suspicious similarity detected (&gt; 65%).</div>`;
+        return;
+      }
+      el.innerHTML = `
+      <div class="card">
+        <div class="section-card-title" style="color:var(--danger-text)">⚠️ ${flagged.length} Flagged Similarity Pair${flagged.length>1?'s':''} (Checked ${res.total_checked} Submissions)</div>
+        ${flagged.map(f => `
+        <div class="flag-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+            <strong>${f.problem}</strong>
+            <span class="${f.similarity>80?'sim-high':'sim-mid'}">${f.similarity}% Similarity</span>
+          </div>
+          <div style="color:var(--text-body);font-size:0.88rem">${f.user1.name} &bull; ${f.user2.name} (${f.language})</div>
+        </div>`).join('')}
+      </div>`;
+    } catch (err) { el.innerHTML = `<div class="loading" style="color:#dc2626">${err.message}</div>`; }
+  }
+
+  // ── Analytics ──
+  async function loadAnalytics() {
+    const el = document.getElementById('analyticsContent');
+    el.innerHTML = '<div class="loading">Loading analytics...</div>';
+    try {
+      const res = await CA.Faculty.getAnalytics();
+      const a   = res.analytics || {};
+      el.innerHTML = `
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="section-card-title">Top Problems by Solve Count</div>
+        <table class="problems-table">
+          <thead><tr><th>Problem</th><th>Difficulty</th><th>Submissions</th><th>Accepted</th><th>Pass Rate</th></tr></thead>
+          <tbody>${(a.top_problems || []).slice(0,10).map(p => `
+          <tr>
+            <td><strong>${p.title}</strong></td>
+            <td><span class="diff-pill dp-${p.difficulty}">${p.difficulty}</span></td>
+            <td>${p.submissions}</td>
+            <td>${p.accepted}</td>
+            <td>${p.submissions > 0 ? Math.round((p.accepted/p.submissions)*100) : 0}%</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>`;
+    } catch (err) { el.innerHTML = `<div class="loading" style="color:#dc2626">${err.message}</div>`; }
+  }
+
+  loadOverview();
+</script>
+</body>
+</html>

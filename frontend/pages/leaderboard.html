@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Leaderboard — CodeArena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background-color: var(--bg-page); min-height: 100vh; color: var(--text-body); }
+
+    .dash-topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dash-topbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text-main);
+    }
+    .btn-back {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .btn-back:hover { color: var(--primary); }
+
+    .lb-container { max-width: 960px; margin: 3rem auto; padding: 0 1.5rem; }
+    .lb-header { margin-bottom: 2rem; }
+    .lb-title { font-size: 2.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem; }
+    .lb-desc { color: var(--text-muted); font-size: 1rem; }
+
+    .rank-cell { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.95rem; }
+    .rank-1 { color: #d97706; font-size: 1.15rem; }
+    .rank-2 { color: #64748b; font-size: 1.05rem; }
+    .rank-3 { color: #b45309; font-size: 1.05rem; }
+
+    .user-cell { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: var(--text-main); }
+    .avatar-circle {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.88rem; font-weight: 700;
+    }
+    .rating-val { color: var(--primary); font-weight: 700; }
+    .problems-table-wrapper { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+    .problems-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .problems-table th { background: var(--bg-subtle); padding: 0.85rem 1.25rem; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .problems-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.92rem; color: var(--text-body); }
+    .problems-table tr:hover td { background: var(--bg-subtle); }
+  </style>
+</head>
+<body>
+
+  <div class="dash-topbar">
+    <a href="../index.html" class="brand">
+      <div class="logo-icon-box" style="width:30px;height:30px;font-size:0.85rem">&lt;/&gt;</div>
+      <span>CodeArena</span>
+    </a>
+    <a href="dashboard-student.html" class="btn-back">← Back to Dashboard</a>
+  </div>
+
+  <div class="lb-container">
+    <div class="lb-header">
+      <h1 class="lb-title">Global Leaderboard</h1>
+      <p class="lb-desc">Top coders ranked by problem solves and competitive rating.</p>
+    </div>
+
+    <div class="problems-table-wrapper">
+      <table class="problems-table">
+        <thead>
+          <tr>
+            <th style="width:80px">Rank</th>
+            <th>Coder</th>
+            <th>Institution</th>
+            <th>Solved</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody id="lbBody">
+          <tr><td colspan="5" class="loading">Loading global rankings...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script>
+    async function loadLeaderboard() {
+      const tbody = document.getElementById('lbBody');
+      try {
+        const res = await CA.Leaderboard.global();
+        const rows = res.leaderboard || [];
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="loading">No ranking data yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map((u, i) => {
+          const rank = u.rank || (i + 1);
+          const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+          const initial = u.name ? u.name[0].toUpperCase() : '?';
+          return `
+            <tr>
+              <td class="rank-cell ${rankClass}">#${rank}</td>
+              <td>
+                <div class="user-cell">
+                  <div class="avatar-circle">${initial}</div>
+                  <span>${u.name}</span>
+                </div>
+              </td>
+              <td style="color:var(--text-muted)">${u.institution || '–'}</td>
+              <td style="font-weight:600">${u.problems_solved || 0}</td>
+              <td class="rating-val">${u.rating || 1200}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="loading" style="color:#dc2626">${err.message}</td></tr>`;
+      }
+    }
+    loadLeaderboard();
+  </script>
+</body>
+</html>

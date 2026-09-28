@@ -1,0 +1,7 @@
+# Netlify redirect rules — Replace with your deployed Spring Boot backend URL
+/api/*  https://YOUR-SPRINGBOOT-BACKEND.onrender.com/api/:splat  200!
+/login  /pages/login.html  200
+/dashboard  /pages/dashboard-student.html  200
+/faculty  /pages/dashboard-faculty.html  200
+/leaderboard  /pages/leaderboard.html  200
+/problem  /pages/problem-detail.html  200

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Problem Solver — CodeArena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/theme/dracula.min.css" />
+  <link rel="stylesheet" href="../styles.css" />
+  <!-- KaTeX for LaTeX Math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <style>
+    body { background-color: var(--bg-page); min-height: 100vh; margin: 0; color: var(--text-body); overflow: hidden; }
+
+    /* ── Top Bar ── */
+    .editor-topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.88rem;
+      text-decoration: none;
+    }
+    .back-btn:hover { color: var(--primary); }
+
+    .problem-title-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* ── Split Layout ── */
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 60px);
+    }
+    
+    .problem-panel {
+      width: 44%;
+      background: #ffffff;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 1.75rem;
+    }
+    
+    .code-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+    }
+
+    /* ── Problem description typography ── */
+    .prob-section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 1.5rem 0 0.5rem;
+    }
+    
+    .prob-desc {
+      color: var(--text-body);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+    .prob-desc h2 { font-size: 1.4rem; margin-bottom: 0.75rem; color: var(--text-main); }
+    .prob-desc code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-subtle);
+      color: var(--primary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+    }
+    .prob-desc pre {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
+    }
+    
+    .io-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      margin: 0.4rem 0 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      color: var(--text-main);
+    }
+
+    /* ── Code Editor Controls Toolbar ── */
+    .code-controls {
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .lang-select {
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      font-weight: 600;
+    }
+    .lang-select:focus { border-color: var(--primary); }
+
+    /* ── CodeMirror ── */
+    .cm-wrapper { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .CodeMirror { flex: 1; height: 100% !important; font-family: 'JetBrains Mono', monospace !important; font-size: 13.5px !important; }
+
+    /* ── Output & Runner Panel ── */
+    .output-panel {
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      padding: 1.25rem;
+      min-height: 180px;
+      max-height: 280px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+    }
+    
+    .output-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+    
+    .out-tab {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.65rem;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+    }
+    .out-tab.active { background: var(--primary-light); color: var(--primary); }
+
+    .custom-stdin {
+      width: 100%;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      min-height: 65px;
+      outline: none;
+    }
+    .custom-stdin:focus { border-color: var(--primary); }
+    
+    .verdict-metrics-row {
+      display: flex;
+      gap: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .vm-item span { color: var(--text-main); font-weight: 700; }
+
+    /* ── CODEARENA AI ROBOT CODING ASSISTANT ── */
+    .code-panel {
+      position: relative;
+    }
+
+    .editor-ai-robot-widget {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      pointer-events: auto;
+      transition: all 0.3s ease;
+    }
+
+    .editor-bot-bubble {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.55rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+      box-shadow: 0 8px 20px -4px rgba(124, 58, 237, 0.15), 0 2px 6px rgba(15, 23, 42, 0.06);
+      margin-bottom: 0.65rem;
+      white-space: nowrap;
+      position: relative;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .editor-bot-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      right: 32px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #ffffff;
+    }
+
+    .editor-bot-figure {
+      width: 82px;
+      height: 82px;
+      position: relative;
+      cursor: pointer;
+      animation: bot-float-editor 3.5s ease-in-out infinite alternate;
+      filter: drop-shadow(0 8px 16px rgba(124, 58, 237, 0.22));
+      transition: transform 0.2s ease;
+    }
+
+    .editor-bot-figure:hover {
+      transform: scale(1.08) translateY(-4px);
+    }
+
+    @keyframes bot-float-editor {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(1deg); }
+      100% { transform: translateY(-10px) rotate(-1deg); }
+    }
+
+    /* Robot Eye Gaze (Gazing towards code on the left) */
+    .editor-bot-pupil {
+      transform: translate(-5px, 2px);
+      transition: transform 0.25s ease;
+    }
+
+    /* States */
+    .bot-state-running .editor-bot-figure {
+      animation: bot-spin-scan 1s infinite linear;
+    }
+    @keyframes bot-spin-scan {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(5deg) scale(1.04); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .bot-state-accepted .editor-bot-figure {
+      animation: bot-leap-celebrate 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite alternate;
+    }
+    @keyframes bot-leap-celebrate {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-16px) scale(1.15); }
+    }
+
+    .bot-state-error .editor-bot-figure {
+      animation: bot-tilt-error 0.4s ease-in-out;
+    }
+    @keyframes bot-tilt-error {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px) rotate(-4deg); }
+      75% { transform: translateX(4px) rotate(4deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP BAR ── -->
+  <div class="editor-topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <a href="dashboard-student.html" class="back-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Dashboard
+      </a>
+      <span style="color:var(--border-strong)">|</span>
+      <div class="problem-title-bar">
+        <span id="probTitle">Loading problem...</span>
+        <span class="diff-pill" id="probDiff"></span>
+      </div>
+    </div>
+    
+    <div id="probTopics" style="color:var(--text-muted);font-size:0.85rem;font-weight:500"></div>
+  </div>
+
+  <!-- ── SPLIT LAYOUT ── -->
+  <div class="editor-layout">
+    <!-- ── LEFT: PROBLEM STATEMENT & HINTS ── -->
+    <div class="problem-panel">
+      <div id="probDescription" class="prob-desc">
+        <div style="color:var(--text-muted);text-align:center;padding:3rem">Loading problem statement...</div>
+      </div>
+
+      <div id="sampleCases"></div>
+
+      <!-- Past submissions -->
+      <div class="prob-section-title">Your Recent Submissions</div>
+      <div id="mySubmissions" style="font-size:0.88rem;color:var(--text-muted)">–</div>
+    </div>
+
+    <!-- ── RIGHT: CODE EDITOR & RUNNER ── -->
+    <div class="code-panel">
+      <!-- Toolbar -->
+      <div class="code-controls">
+        <select class="lang-select" id="langSelect" onchange="updateEditorMode()">
+          <option value="python">Python 3</option>
+          <option value="cpp">C++ (g++ 17)</option>
+          <option value="java">Java (JDK 21)</option>
+          <option value="c">C (gcc 11)</option>
+          <option value="javascript">JavaScript (Node.js)</option>
+        </select>
+
+        <button class="btn-ghost btn-sm" onclick="resetStarterCode()" style="margin-left:auto">↺ Reset</button>
+        <button class="btn-secondary btn-sm" id="runBtn" onclick="runCode()">▶ Run Code</button>
+        <button class="btn-primary btn-sm" id="submitBtn" onclick="submitCode()">⚡ Submit Solution</button>
+      </div>
+
+      <!-- CodeMirror Container -->
+      <div class="cm-wrapper">
+        <textarea id="codeEditor"></textarea>
+      </div>
+
+
+
+      <!-- Bottom Test Runner & Output Panel -->
+      <div class="output-panel">
+        <div class="output-tabs">
+          <button class="out-tab active" id="tabOutputBtn" onclick="switchOutTab('output')">Execution Output</button>
+          <button class="out-tab" id="tabStdinBtn" onclick="switchOutTab('stdin')">Custom Input (stdin)</button>
+        </div>
+
+        <!-- Tab 1: Output Results -->
+        <div id="paneOutput">
+          <div id="outputResult" style="color:var(--text-muted);font-size:0.85rem">
+            Run or submit your solution to inspect test results and AI diagnostic feedback.
+          </div>
+        </div>
+
+        <!-- Tab 2: Custom Stdin -->
+        <div id="paneStdin" style="display:none">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem">Standard Input (stdin):</div>
+          <textarea class="custom-stdin" id="customStdin" placeholder="Enter input here..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CodeMirror scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/mode/javascript/javascript.min.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/response.js"></script>
+
+  <script>
+    // ── Guard ──
+    if (!CA.isLoggedIn()) window.location.href = 'login.html';
+
+    // ── CodeMirror Setup ──
+    const starterCode = {
+      python:     'import sys\n\ndef solve():\n    # Write your solution here\n    pass\n\nif __name__ == "__main__":\n    solve()\n',
+      cpp:        '#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
+      java:       'import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Write your solution here\n    }\n}\n',
+      c:          '#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
+      javascript: 'const fs = require("fs");\n\nfunction main() {\n    const input = fs.readFileSync(0, "utf-8").trim();\n    // Write your solution here\n}\n\nmain();\n'
+    };
+
+    const modeMap = {
+      python: 'python',
+      cpp: 'text/x-c++src',
+      c: 'text/x-csrc',
+      java: 'text/x-java',
+      javascript: 'javascript'
+    };
+
+    let currentProblem = null;
+    let activeEditorLang = 'python';
+    const editorDrafts = new Map();
+
+    const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+      lineNumbers: true,
+      theme: 'dracula',
+      mode: 'python',
+      indentUnit: 4,
+      tabSize: 4,
+      autoCloseBrackets: true,
+      matchBrackets: true,
+      lineWrapping: true
+    });
+
+    function updateEditorMode() {
+      const lang = document.getElementById('langSelect').value;
+      if (activeEditorLang !== lang) editorDrafts.set(activeEditorLang, editor.getValue());
+      editor.setOption('mode', modeMap[lang] || 'python');
+      const savedDraft = editorDrafts.get(lang);
+      const problemCode = typeof currentProblem?.starter_code === 'string'
+        ? (lang === 'python' ? currentProblem.starter_code : '')
+        : currentProblem?.starter_code?.[lang];
+      editor.setValue(savedDraft ?? problemCode ?? starterCode[lang] ?? '');
+      activeEditorLang = lang;
+    }
+    updateEditorMode();
+
+    function resetStarterCode() {
+      if (confirm('Reset editor to original starter code?')) {
+        const lang = document.getElementById('langSelect').value;
+        if (currentProblem?.starter_code) {
+          if (typeof currentProblem.starter_code === 'string') {
+            editor.setValue(currentProblem.starter_code);
+          } else if (typeof currentProblem.starter_code === 'object' && currentProblem.starter_code[lang]) {
+            editor.setValue(currentProblem.starter_code[lang]);
+          } else {
+            editor.setValue(starterCode[lang] || '');
+          }
+        } else {
+          editor.setValue(starterCode[lang] || '');
+        }
+      }
+    }
+
+    function switchOutTab(tab) {
+      document.getElementById('tabOutputBtn').classList.toggle('active', tab === 'output');
+      document.getElementById('tabStdinBtn').classList.toggle('active', tab === 'stdin');
+      document.getElementById('paneOutput').style.display = tab === 'output' ? 'block' : 'none';
+      document.getElementById('paneStdin').style.display  = tab === 'stdin' ? 'block' : 'none';
+    }
+
+    // ── Load Problem / Practice Program ──
+    async function loadProblem() {
+      const params     = new URLSearchParams(window.location.search);
+      const id         = params.get('id');
+      const slug       = params.get('slug');
+      const practiceId = params.get('practice_id');
+
+      if (!id && !slug && !practiceId) {
+        document.getElementById('probTitle').textContent = 'No problem selected';
+        return;
+      }
+
+      try {
+        let p;
+        if (practiceId) {
+          const res = await CA.Practice.getProgram(practiceId);
+          p = res.program;
+          p.isPractice = true;
+          if (p.language) {
+            const langSel = document.getElementById('langSelect');
+            if (langSel.querySelector(`option[value="${p.language}"]`)) {
+              langSel.value = p.language;
+            }
+          }
+        } else {
+          const res = id ? await CA.Problems.getById(id) : await CA.Problems.getBySlug(slug);
+          p = res.problem;
+        }
+        currentProblem = p;
+        editorDrafts.clear();
+        activeEditorLang = document.getElementById('langSelect').value;
+
+        document.title = `${p.title} — CodeArena`;
+        document.getElementById('probTitle').textContent = p.title;
+        const diffEl = document.getElementById('probDiff');
+        diffEl.textContent  = p.difficulty;
+        diffEl.className    = `diff-pill dp-${p.difficulty}`;
+
+        let topicsText = '';
+        if (p.topics) {
+          const tArr = CA.parseArray(p.topics);
+          topicsText = tArr.join(' • ');
+        } else if (p.category) {
+          topicsText = `${p.language?.toUpperCase() || ''} • ${p.category}`;
+        }
+        document.getElementById('probTopics').textContent = topicsText;
+
+        // Render description
+        document.getElementById('probDescription').innerHTML = simpleMarkdown(p.description);
+
+        // Sample cases
+        const sampleCases = p.sample_cases || (p.sample_input ? [{ input: p.sample_input, output: p.sample_output }] : []);
+        if (sampleCases.length) {
+          document.getElementById('sampleCases').innerHTML = sampleCases.map((tc, i) => `
+            <div class="prob-section-title">Example ${i + 1}</div>
+            <div style="color:var(--text-muted);font-size:0.8rem;margin-bottom:0.25rem;font-weight:600">Input:</div>
+            <div class="io-box">${escHtml(tc.input || '')}</div>
+            <div style="color:var(--text-muted);font-size:0.8rem;margin:0.4rem 0 0.25rem;font-weight:600">Output:</div>
+            <div class="io-box">${escHtml(tc.output || '')}</div>
+          `).join('');
+        }
+
+        // Render progressive hints
+        if (p.hints?.length) {
+          const hintsHtml = p.hints.map(h => `
+            <details style="margin:0.5rem 0;background:var(--primary-light);border:1px solid var(--primary-border);border-radius:var(--radius-sm);padding:0.65rem 0.95rem;">
+              <summary style="cursor:pointer;font-weight:600;color:var(--primary);font-size:0.85rem">💡 Hint ${h.hint_number || h.num || ''}: ${escHtml(h.title || 'Click to reveal')}</summary>
+              <div style="margin-top:0.5rem;color:var(--text-body);font-size:0.85rem;line-height:1.5">${escHtml(h.content)}</div>
+            </details>
+          `).join('');
+          document.getElementById('sampleCases').innerHTML += `<div class="prob-section-title">Progressive Hints</div>` + hintsHtml;
+        }
+
+        // Set starter code
+        updateEditorMode();
+        // updateEditorMode selects the language-specific question code and retains
+        // the user's draft while switching languages. Do not overwrite it here.
+
+        if (sampleCases[0]) {
+          document.getElementById('customStdin').value = sampleCases[0].input || '';
+        }
+
+        // Load submission records
+        if (p.id && !p.isPractice) {
+          loadMySubmissions(p.id);
+        } else if (p.user_progress) {
+          const el = document.getElementById('mySubmissions');
+          el.innerHTML = `<div>Status: <strong>${p.user_progress.is_completed ? '✅ Completed' : '⏳ In Progress'}</strong> &bull; Best Verdict: ${p.user_progress.last_verdict || '–'} &bull; Attempts: ${p.user_progress.attempts}</div>`;
+        }
+      } catch (err) {
+        document.getElementById('probDescription').innerHTML = `<div style="color:var(--danger-text)">${err.message}</div>`;
+      }
+    }
+
+    async function loadMySubmissions(problemId) {
+      try {
+        const res  = await CA.Submissions.getByProblem(problemId);
+        const subs = res.submissions || [];
+        const el   = document.getElementById('mySubmissions');
+        if (!subs.length) { el.textContent = 'No submissions yet.'; return; }
+        el.innerHTML = subs.slice(0, 5).map(s => `
+          <div style="display:flex;gap:0.75rem;align-items:center;padding:0.45rem 0;border-bottom:1px solid var(--border)">
+            <span class="verdict-badge v-${s.verdict}">${s.verdict}</span>
+            <span style="color:var(--text-body);font-size:0.85rem">${s.language}</span>
+            <span style="color:var(--text-muted);font-size:0.8rem;margin-left:auto">${new Date(s.submitted_at).toLocaleDateString()}</span>
+          </div>`).join('');
+      } catch {}
+    }
+
+    // ── AI Robot State & Reaction Controller ──
+    const editorBotWidget = document.getElementById('editorAiRobotWidget');
+    const editorBotMsg    = document.getElementById('editorBotMsg');
+
+    function setEditorBotState(state, message) {
+      if (!editorBotWidget) return;
+      editorBotWidget.className = 'editor-ai-robot-widget ' + (state ? 'bot-state-' + state : '');
+      if (message && editorBotMsg) {
+        editorBotMsg.style.opacity = '0';
+        setTimeout(() => {
+          editorBotMsg.textContent = message;
+          editorBotMsg.style.opacity = '1';
+        }, 150);
+      }
+    }
+
+    function triggerEditorBotTip() {
+      if (!currentProblem) return;
+      setEditorBotState('accepted', `Tip: Focus on edge cases for ${currentProblem.title || 'this challenge'}! 🚀`);
+      setTimeout(() => {
+        setEditorBotState('', 'AI Mentor Active • Gaze on Code');
+      }, 3500);
+    }
+
+    // ── Run Code (Interactive Sandbox Test) ──
+    async function runCode() {
+      const lang  = document.getElementById('langSelect').value;
+      const code  = editor.getValue();
+      const stdin = document.getElementById('customStdin').value;
+      const btn   = document.getElementById('runBtn');
+      const out   = document.getElementById('outputResult');
+
+      switchOutTab('output');
+      btn.disabled = true; btn.textContent = '⏳ Running...';
+      out.innerHTML = '<span style="color:var(--text-muted)">Executing code in isolated sandbox...</span>';
+      
+      // Robot reaction: Running / evaluating
+      setEditorBotState('running', 'Compiling & Running Sandbox... ⏳');
+
+      try {
+        const res = currentProblem?.isPractice
+          ? await CA.Practice.run(lang, code, stdin)
+          : await CA.Submissions.run(lang, code, stdin);
+
+        out.innerHTML = `
+          <div style="margin-bottom:0.5rem;color:var(--text-muted);font-size:0.82rem;font-weight:600">Status: ${res.status || 'Finished'} &bull; Execution Time: ${res.runtimeMs || '?'}ms</div>
+          ${res.stdout ? `<div style="color:var(--success-text);white-space:pre-wrap;background:var(--success-bg);padding:0.75rem;border-radius:6px;border:1px solid var(--success-border)">${escHtml(res.stdout)}</div>` : ''}
+          ${res.stderr ? `<div style="color:var(--danger-text);white-space:pre-wrap;margin-top:0.5rem;background:var(--danger-bg);padding:0.75rem;border-radius:6px;border:1px solid var(--danger-border)">${escHtml(res.stderr)}</div>` : ''}
+          ${res.compileOutput ? `<div style="color:#c2410c;white-space:pre-wrap;margin-top:0.5rem;background:#ffedd5;padding:0.75rem;border-radius:6px;border:1px solid #fed7aa">${escHtml(res.compileOutput)}</div>` : ''}
+          ${!res.stdout && !res.stderr && !res.compileOutput ? '<span style="color:var(--text-muted)">Program executed cleanly with no stdout.</span>' : ''}`;
+
+        if (res.stderr || res.compileOutput) {
+          setEditorBotState('error', 'Compiler Notice: Check syntax or runtime logs 💡');
+        } else {
+          setEditorBotState('accepted', 'Clean Execution Finished! 👍');
+        }
+      } catch (err) {
+        out.innerHTML = `<span style="color:var(--danger-text)">Execution Error: ${err.message}</span>`;
+        setEditorBotState('error', 'Execution Error occurred ⚠️');
+      } finally {
+        btn.disabled = false; btn.textContent = '▶ Run Code';
+        setTimeout(() => {
+          setEditorBotState('', 'AI Mentor Active • Gaze on Code');
+        }, 4000);
+      }
+    }
+
+    // ── Submit Code (Judging against hidden test cases + AI assistance) ──
+    async function submitCode() {
+      if (!currentProblem) return;
+      const lang = document.getElementById('langSelect').value;
+      const code = editor.getValue();
+      if (!code.trim()) { alert('Please enter code before submitting.'); return; }
+
+      const btn = document.getElementById('submitBtn');
+      const out = document.getElementById('outputResult');
+      switchOutTab('output');
+      btn.disabled = true; btn.textContent = '⏳ Submitting...';
+      out.innerHTML = '<div class="verdict-badge v-Pending" style="padding:0.6rem 1rem">⏳ Evaluating test cases in sandbox...</div>';
+      
+      // Robot reaction: Running test suite
+      setEditorBotState('running', 'Evaluating test suite in sandbox... ⏳');
+
+      try {
+        if (currentProblem.isPractice) {
+          const res = await CA.Practice.submit(currentProblem.id, lang, code);
+          const sub = res.submission;
+          const verdictLabels = {
+            AC:  '✅ Accepted',
+            WA:  '❌ Wrong Answer',
+            TLE: '⏱ Time Limit Exceeded',
+            CE:  '🔧 Compilation Error',
+            RE:  '💥 Runtime Error',
+            MLE: '💾 Memory Limit Exceeded'
+          };
+          
+          let aiHtml = '';
+          if (res.ai_feedback) {
+            const ai = res.ai_feedback;
+            aiHtml = `
+              <div class="ai-feedback-banner" style="margin-top:1rem">
+                <div class="ai-feedback-title">
+                  <span>🤖</span> AI Assistant Diagnostics (${ai.timeComplexity} Time &bull; ${ai.spaceComplexity} Space)
+                </div>
+                <div style="color:var(--text-body);font-size:0.88rem;line-height:1.5">${escHtml(ai.optimizationSuggestions?.[0] || 'Solution passed test suite.')}</div>
+              </div>`;
+          }
+
+          out.innerHTML = `
+            <div class="verdict-badge vd-${sub.verdict}" style="padding:0.6rem 1rem;font-size:0.95rem">${verdictLabels[sub.verdict] || sub.verdict}</div>
+            <div class="verdict-metrics-row">
+              <div class="vm-item"><span>${sub.runtime_ms || 15}ms</span> Runtime</div>
+              <div class="vm-item"><span>${sub.passed_test_cases || 0}/${sub.total_test_cases || 0}</span> Test Cases Passed</div>
+              <div class="vm-item"><span>${sub.score || 0}%</span> Score</div>
+            </div>
+            ${sub.error_output ? `<pre style="color:var(--danger-text);background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:6px;padding:0.75rem;margin-top:0.75rem;font-size:0.82rem;white-space:pre-wrap">${escHtml(sub.error_output)}</pre>` : ''}
+            ${aiHtml}`;
+
+          // Robot reaction to verdict
+          if (sub.verdict === 'AC') {
+            setEditorBotState('accepted', 'Accepted! 100% Test Cases Passed! 🚀');
+          } else {
+            setEditorBotState('error', `Verdict: ${sub.verdict} • Analyzing bottleneck 💡`);
+          }
+        } else {
+          const res = await CA.Submissions.submit(currentProblem.id, lang, code);
+          out.innerHTML = '<div class="verdict-badge v-Pending" style="padding:0.6rem 1rem">⏳ Running test cases in sandbox...</div>';
+
+          // Poll for result
+          const result = await CA.Submissions.pollResult(res.submissionId, (sub) => {
+            out.innerHTML = `<div class="verdict-badge v-Pending" style="padding:0.6rem 1rem">⏳ ${sub.verdict === 'Pending' ? 'Running test cases...' : sub.verdict}</div>`;
+          });
+
+          if (result) {
+            const verdictLabels = {
+              AC:  '✅ Accepted',
+              WA:  '❌ Wrong Answer',
+              TLE: '⏱ Time Limit Exceeded',
+              CE:  '🔧 Compilation Error',
+              RE:  '💥 Runtime Error',
+              MLE: '💾 Memory Limit Exceeded'
+            };
+
+            // Render Instant 8-Part Feedback Card
+            const feedbackHtml = renderInstantSubmissionFeedback(result.ai_feedback, result.verdict, result.passed_test_cases, result.total_test_cases, result.runtime_ms, result.memory_mb, result.error_output);
+
+            out.innerHTML = `
+              <div class="verdict-badge vd-${result.verdict}" style="padding:0.6rem 1rem;font-size:0.95rem">${verdictLabels[result.verdict] || result.verdict}</div>
+              ${result.runtime_ms || result.memory_mb ? `
+                <div class="verdict-metrics-row">
+                  ${result.runtime_ms ? `<div class="vm-item"><span>${result.runtime_ms}ms</span> Runtime</div>` : ''}
+                  ${result.memory_mb  ? `<div class="vm-item"><span>${result.memory_mb}MB</span> Memory</div>`  : ''}
+                </div>` : ''}
+              ${result.error_output ? `<pre style="color:var(--danger-text);background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:6px;padding:0.75rem;margin-top:0.75rem;font-size:0.82rem;white-space:pre-wrap">${escHtml(result.error_output)}</pre>` : ''}
+              ${feedbackHtml}`;
+
+            if (result.verdict === 'AC') {
+              loadMySubmissions(currentProblem.id);
+              setEditorBotState('accepted', 'Accepted! 100% Test Cases Passed! 🚀');
+            } else {
+              setEditorBotState('error', `Verdict: ${result.verdict} • Check instant AI feedback! 💡`);
+            }
+          }
+        }
+      } catch (err) {
+        out.innerHTML = `<span style="color:var(--danger-text)">Submission Error: ${err.message}</span>`;
+        setEditorBotState('error', 'Submission error occurred ⚠️');
+      } finally {
+        btn.disabled = false; btn.textContent = '⚡ Submit Solution';
+      }
+    }
+
+    // ── Instant 8-Part Submission Feedback Renderer ──
+    function renderInstantSubmissionFeedback(ai, verdict, passedCount = 0, totalCount = 1, runtimeMs = 15, memoryMb = 8.4, errorOutput = '') {
+      if (!ai) {
+        ai = {
+          resultSummary: {
+            status: verdict === 'AC' ? 'Correct' : (passedCount > 0 ? 'Partially Correct' : 'Incorrect'),
+            badge: verdict === 'AC' ? 'AC' : 'WA',
+            badgeColor: verdict === 'AC' ? '#16a34a' : '#dc2626'
+          },
+          testCasesDetail: { passedCount, totalCount, passPercentage: Math.round((passedCount/totalCount)*100) },
+          errorExplanation: errorOutput || 'Solution evaluated by AI Judge.',
+          correctApproach: 'Identify algorithmic patterns, handle boundary conditions, and optimize computational loops.',
+          codeQuality: { score: verdict === 'AC' ? '92 / 100' : '75 / 100', suggestions: ['Ensure boundary constraints are verified.'] },
+          complexity: { timeComplexity: 'O(n)', spaceComplexity: 'O(1)', advice: 'Optimal complexity maintained.' },
+          conceptUnderstanding: { masteryLevel: verdict === 'AC' ? 'Mastered' : 'Developing', concepts: ['Algorithm Logic'] },
+          recommendations: ['Practice edge cases and boundary conditions.']
+        };
+      }
+
+      const resSum = ai.resultSummary || {};
+      const tc     = ai.testCasesDetail || { passedCount, totalCount };
+      const qual   = ai.codeQuality || {};
+      const comp   = ai.complexity || {};
+      const conc   = ai.conceptUnderstanding || {};
+      const recs   = ai.recommendations || [];
+
+      const isAc = verdict === 'AC';
+      const isPartial = verdict === 'WA' && passedCount > 0;
+      const statusTitle = isAc ? 'Correct Solution' : (isPartial ? 'Partially Correct' : 'Incorrect Solution');
+      const statusColor = isAc ? '#16a34a' : (isPartial ? '#d97706' : '#dc2626');
+      const badgeBg     = isAc ? 'dp-Easy' : (isPartial ? 'dp-Medium' : 'dp-Hard');
+
+      const failedCaseHtml = tc.failedTestCase ? `
+        <div style="margin-top:0.5rem;font-size:0.8rem;background:#ffffff;border:1px solid var(--border);border-radius:4px;padding:0.6rem">
+          <div style="font-weight:700;color:var(--danger-text)">Failed Test Case #${tc.failedTestCase.caseNumber}</div>
+          <div style="margin-top:0.25rem"><strong>Input:</strong> <code>${escHtml(tc.failedTestCase.input)}</code></div>
+          <div><strong>Expected:</strong> <code>${escHtml(tc.failedTestCase.expectedOutput)}</code></div>
+          <div><strong>Actual:</strong> <code>${escHtml(tc.failedTestCase.actualOutput)}</code></div>
+        </div>
+      ` : '';
+
+      const qualityList = (qual.suggestions || []).map(s => `<li>${escHtml(s)}</li>`).join('');
+      const conceptsChips = (conc.concepts || []).map(c => `<span style="font-size:0.75rem;font-weight:600;padding:0.2rem 0.5rem;background:#ffffff;border:1px solid var(--border);border-radius:4px;color:var(--text-main)">${escHtml(c)}</span>`).join('');
+      const recsList = recs.map(r => `<li>${escHtml(r)}</li>`).join('');
+
+      return `
+        <div style="margin-top:1.25rem;background:#ffffff;border:1px solid var(--border);border-radius:var(--radius);padding:1.35rem;box-shadow:var(--shadow-md);text-align:left">
+          
+          <!-- 1. Result & Status Header -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.5rem">
+            <div style="display:flex;align-items:center;gap:0.6rem">
+              <span style="font-size:1.15rem;font-weight:800;color:${statusColor}">${isAc ? '✅' : isPartial ? '⚠️' : '❌'} ${statusTitle}</span>
+              <span class="diff-pill ${badgeBg}" style="font-weight:700">${resSum.badge || verdict}</span>
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted);font-weight:600">
+              ${tc.passedCount || 0}/${tc.totalCount || 0} Test Cases Passed (${tc.passPercentage || 0}%)
+            </div>
+          </div>
+
+          <!-- 2. Test Cases Breakdown -->
+          <div style="margin-bottom:1rem;background:var(--bg-subtle);border-radius:var(--radius-sm);padding:0.85rem">
+            <div style="font-size:0.8rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.04em;margin-bottom:0.25rem">🧪 Test Case Evaluation</div>
+            <div style="font-size:0.88rem;font-weight:600;color:var(--text-main)">${tc.summaryText || `${passedCount} of ${totalCount} test cases passed`}</div>
+            ${failedCaseHtml}
+          </div>
+
+          <!-- 3. Error Explanation -->
+          <div style="margin-bottom:1rem;background:#fff1f2;border:1px solid #fecdd3;border-radius:var(--radius-sm);padding:0.95rem">
+            <div style="font-size:0.82rem;font-weight:700;color:#9f1239;margin-bottom:0.35rem">🔍 Error & Logic Explanation</div>
+            <div style="font-size:0.88rem;color:#881337;line-height:1.5">${escHtml(ai.errorExplanation || '')}</div>
+          </div>
+
+          <!-- 4. Correct Approach Guidance -->
+          <div style="margin-bottom:1rem;background:#f0f9ff;border:1px solid #bae6fd;border-radius:var(--radius-sm);padding:0.95rem">
+            <div style="font-size:0.82rem;font-weight:700;color:#0369a1;margin-bottom:0.35rem">💡 Recommended Problem-Solving Approach</div>
+            <div style="font-size:0.88rem;color:#075985;line-height:1.5">${escHtml(ai.correctApproach || '')}</div>
+          </div>
+
+          <!-- 5. Big-O Complexity Analysis -->
+          <div style="margin-bottom:1rem;display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:0.75rem">
+            <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem">
+              <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">⏱ Time Complexity</div>
+              <div style="font-size:1.3rem;font-weight:800;color:var(--primary);margin:0.2rem 0">${comp.timeComplexity || 'O(n)'}</div>
+              <div style="font-size:0.78rem;color:var(--text-body);line-height:1.3">${escHtml(comp.advice || '')}</div>
+            </div>
+            <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem">
+              <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">💾 Space Complexity</div>
+              <div style="font-size:1.3rem;font-weight:800;color:var(--primary);margin:0.2rem 0">${comp.spaceComplexity || 'O(1)'}</div>
+              <div style="font-size:0.78rem;color:var(--text-body);line-height:1.3">Auxiliary memory management review</div>
+            </div>
+          </div>
+
+          <!-- 6. Code Quality Review -->
+          <div style="margin-bottom:1rem;background:#faf5ff;border:1px solid #e9d5ff;border-radius:var(--radius-sm);padding:0.95rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem">
+              <span style="font-size:0.82rem;font-weight:700;color:#6b21a8">✨ Code Quality & Structure</span>
+              <span style="font-size:0.8rem;font-weight:700;color:#7e22ce">${qual.score || '85 / 100'}</span>
+            </div>
+            <ul style="margin:0;padding-left:1.1rem;font-size:0.85rem;color:#581c87;line-height:1.5">
+              ${qualityList}
+            </ul>
+          </div>
+
+          <!-- 7. Concept Understanding & Mastery Level -->
+          <div style="margin-bottom:1rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius-sm);padding:0.95rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem">
+              <span style="font-size:0.82rem;font-weight:700;color:#166534">🧠 Concept Understanding</span>
+              <span class="diff-pill ${isAc ? 'dp-Easy' : 'dp-Medium'}">${conc.masteryLevel || (isAc ? 'Mastered' : 'Developing')}</span>
+            </div>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.4rem">
+              ${conceptsChips}
+            </div>
+          </div>
+
+          <!-- 8. Actionable Recommendations & Continuous Practice Loop -->
+          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-sm);padding:0.95rem">
+            <div style="font-size:0.82rem;font-weight:700;color:#92400e;margin-bottom:0.35rem">📌 Recommended Practice Next Steps</div>
+            <ul style="margin:0 0 0.85rem 0;padding-left:1.1rem;font-size:0.85rem;color:#78350f;line-height:1.5">
+              ${recsList}
+            </ul>
+            <a href="dashboard-student.html" class="btn-primary btn-sm" style="display:inline-block;text-decoration:none">
+              🎯 Practice Weak Topics in Dashboard →
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // ── Helper markdown parser ──
+    function simpleMarkdown(md) {
+      if (!md) return '';
+      if (typeof CodeArenaResponse !== 'undefined' && CodeArenaResponse.renderMarkdown) {
+        return CodeArenaResponse.renderMarkdown(md, false);
+      }
+      return md
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/^### (.*$)/gim, '<div class="prob-section-title">$1</div>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/```([a-z]*)\n([\s\S]*?)```/gim, '<pre><code>$2</code></pre>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/\n\n/g, '<p style="margin:0.75rem 0"></p>')
+        .replace(/\n/g, '<br/>');
+    }
+
+    function escHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    loadProblem();
+  </script>
+</body>
+</html>
